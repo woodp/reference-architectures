@@ -33,6 +33,7 @@ $virtualNetworkTemplateUri = New-Object System.Uri -ArgumentList @($templateRoot
 $virtualNetworkGatewayTemplateUri = New-Object System.Uri -ArgumentList @($templateRootUri, "templates/buildingBlocks/vpn-gateway-vpn-connection/azuredeploy.json")
 $virtualMachineTemplate = New-Object System.Uri -ArgumentList @($templateRootUri, 'templates/buildingBlocks/multi-vm-n-nic-m-storage/azuredeploy.json')
 $loadBalancedVmSetTemplate = New-Object System.Uri -ArgumentList @($templateRootUri, 'templates/buildingBlocks/loadBalancer-backend-n-vm/azuredeploy.json')
+$virtualMachineExtensionsTemplate = New-Object System.Uri -ArgumentList @($templateRootUri, "templates/buildingBlocks/virtualMachine-extensions/azuredeploy.json")
 
 # Template parameters for respective deployments
 $virtualNetworkParametersPath = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'virtualNetwork.parameters.json')
@@ -60,32 +61,28 @@ if ($Mode -eq "Infrastructure") {
     Write-Host "Creating infrastructure resource group..."
     $infrastructureResourceGroup = New-AzureRmResourceGroup -Name $infrastructureResourceGroupName -Location $Location
 
-    Write-Host "Deploying virtual network..."
-    New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
-        -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
+    # Write-Host "Deploying virtual network..."
+    # New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+    #     -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
 
-    Write-Host "Deploying jumpbox server..."
-    New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
-        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
+    # Write-Host "Deploying jumpbox server..."
+    # New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+    #     -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
 
-    Write-Host "Deploying ADDS servers..."
-    New-AzureRmResourceGroupDeployment -Name "ad-deployment" `
-        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
-        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $domainControllersParametersFile
+    # Write-Host "Deploying ADDS servers..."
+    # New-AzureRmResourceGroupDeployment -Name "ad-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+    #     -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $domainControllersParametersFile
 
     Write-Host "Updating virtual network DNS servers..."
-    New-AzureRmResourceGroupDeployment -Name "update-dns" `
-        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName -TemplateUri $virtualNetworkTemplate.AbsoluteUri `
-        -TemplateParameterFile $virtualNetworkDNSParametersFile
+    New-AzureRmResourceGroupDeployment -Name "update-dns" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkDNSParametersFile
 
     Write-Host "Creating ADDS forest..."
-    New-AzureRmResourceGroupDeployment -Name "primary-ad-ext" `
-        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+    New-AzureRmResourceGroupDeployment -Name "primary-ad-ext" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $createAddsDomainControllerForestExtensionParametersFile
 
     Write-Host "Creating ADDS domain controller..."
-    New-AzureRmResourceGroupDeployment -Name "secondary-ad-ext" `
-        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+    New-AzureRmResourceGroupDeployment -Name "secondary-ad-ext" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $addAddsDomainControllerExtensionParametersFile
 }
 elseif ($Mode -eq "Workload") {
