@@ -51,7 +51,7 @@
     "virtualNetworkSettings": {
       "value": {
         "name": "ra-sap-hana-vnet",
-        "resourceGroup": "ra-sap-hana-rg"
+        "resourceGroup": "sap-hana-infrastructure"
       }
     },
     "buildingBlockSettings": {

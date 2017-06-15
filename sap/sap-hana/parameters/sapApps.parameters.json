@@ -59,12 +59,12 @@
     "virtualNetworkSettings": {
       "value": {
         "name": "ra-sap-hana-vnet",
-        "resourceGroup": "ra-sap-hana-rg"
+        "resourceGroup": "sap-hana-infrastructure"
       }
     },
     "buildingBlockSettings": {
       "value": {
-        "storageAccountsCount": 1,
+        "storageAccountsCount": 3,
         "vmCount": 3,
         "vmStartIndex": 1
       }

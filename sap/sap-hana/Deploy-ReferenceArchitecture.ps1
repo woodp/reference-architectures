@@ -2,21 +2,24 @@
 # Deploy_ReferenceArchitecture.ps1
 #
 param(
-  [Parameter(Mandatory=$true)]
-  $SubscriptionId,
-  [Parameter(Mandatory=$false)]
-  $Location = "Central US"
+    [Parameter(Mandatory = $true)]
+    $SubscriptionId,
+    [Parameter(Mandatory = $true)]
+    $Location,
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("Infrastructure", "Security", "Workload")]
+    $Mode
 )
 
 $ErrorActionPreference = "Stop"
 
 $templateRootUriString = $env:TEMPLATE_ROOT_URI
 if ($templateRootUriString -eq $null) {
-  $templateRootUriString = "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/"
+    $templateRootUriString = "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/"
 }
 
 if (![System.Uri]::IsWellFormedUriString($templateRootUriString, [System.UriKind]::Absolute)) {
-  throw "Invalid value for TEMPLATE_ROOT_URI: $env:TEMPLATE_ROOT_URI"
+    throw "Invalid value for TEMPLATE_ROOT_URI: $env:TEMPLATE_ROOT_URI"
 }
 
 Write-Host
@@ -41,42 +44,76 @@ $appsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sa
 $scsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapCentralSvc.parameters.json')
 $hanaParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapHana.parameters.json')
 
-$resourceGroupName = "ra-sap-hana-rg"
+# Azure ADDS Parameter Files
+$domainControllersParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\ad.parameters.json")
+$virtualNetworkDNSParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\virtualNetwork-adds-dns.parameters.json")
+$addAddsDomainControllerExtensionParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\add-adds-domain-controller.parameters.json")
+$createAddsDomainControllerForestExtensionParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\create-adds-forest-extension.parameters.json")
+
+$infrastructureResourceGroupName = "sap-hana-infrastructure"
+$workloadResourceGroupName = "sap-hana-workload"
 
 # Login to Azure and select the subscription
 Login-AzureRmAccount -SubscriptionId $SubscriptionId | Out-Null
 
-# Create the resource group
-$resourceGroup = New-AzureRmResourceGroup -Name $resourceGroupName -Location $Location
+if ($Mode -eq "Infrastructure") {
+    Write-Host "Creating infrastructure resource group..."
+    $infrastructureResourceGroup = New-AzureRmResourceGroup -Name $infrastructureResourceGroupName -Location $Location
 
-Write-Host "Deploying virtual network..."
-New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
+    Write-Host "Deploying virtual network..."
+    New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
 
-# Write-Host "Deploying virtual network gateway..."
-# New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-gateway-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-#     -TemplateUri $virtualNetworkGatewayTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkGatewayParametersPath
+    Write-Host "Deploying jumpbox server..."
+    New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
 
-Write-Host "Deploying jumpbox server..."
-New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
+    Write-Host "Deploying ADDS servers..."
+    New-AzureRmResourceGroupDeployment -Name "ad-deployment" `
+        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $domainControllersParametersFile
 
-Write-Host "Deploying SAP Web Dispatcher cluster..."
-New-AzureRmResourceGroupDeployment -Name "sap-wdp-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $wdpParametersFile
+    Write-Host "Updating virtual network DNS servers..."
+    New-AzureRmResourceGroupDeployment -Name "update-dns" `
+        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName -TemplateUri $virtualNetworkTemplate.AbsoluteUri `
+        -TemplateParameterFile $virtualNetworkDNSParametersFile
 
-Write-Host "Deploying SAP Message server..."
-New-AzureRmResourceGroupDeployment -Name "sap-wdp-msg-server-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $wdpMsgServerParametersFile
+    Write-Host "Creating ADDS forest..."
+    New-AzureRmResourceGroupDeployment -Name "primary-ad-ext" `
+        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $createAddsDomainControllerForestExtensionParametersFile
 
-Write-Host "Deploying SAP Application cluster..."
-New-AzureRmResourceGroupDeployment -Name "sap-app-server-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $appsParametersFile
+    Write-Host "Creating ADDS domain controller..."
+    New-AzureRmResourceGroupDeployment -Name "secondary-ad-ext" `
+        -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $addAddsDomainControllerExtensionParametersFile
+}
+elseif ($Mode -eq "Workload") {
+    Write-Host "Creating workload resource group..."
+    $workloadResourceGroup = New-AzureRmResourceGroup -Name $workloadResourceGroupName -Location $Location 
 
-Write-Host "Deploying SAP Central Service cluster..."
-New-AzureRmResourceGroupDeployment -Name "sap-scs-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $scsParametersFile
+    Write-Host "Deploying SAP Web Dispatcher cluster..."
+    New-AzureRmResourceGroupDeployment -Name "sap-wdp-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $wdpParametersFile
 
-Write-Host "Deploying SAP Hana Server..."
-New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
+    Write-Host "Deploying SAP Message server..."
+    New-AzureRmResourceGroupDeployment -Name "sap-wdp-msg-server-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $wdpMsgServerParametersFile
+
+    Write-Host "Deploying SAP Application cluster..."
+    New-AzureRmResourceGroupDeployment -Name "sap-app-server-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $appsParametersFile
+
+    Write-Host "Deploying SAP Central Service cluster..."
+    New-AzureRmResourceGroupDeployment -Name "sap-scs-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $scsParametersFile
+
+    Write-Host "Deploying SAP Hana Server..."
+    New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
+}
+elseif ($Mode -eq "Security")
+{
+    # TODO...
+}
+
