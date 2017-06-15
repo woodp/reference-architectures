@@ -34,10 +34,12 @@ $loadBalancedVmSetTemplate = New-Object System.Uri -ArgumentList @($templateRoot
 # Template parameters for respective deployments
 $virtualNetworkParametersPath = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'virtualNetwork.parameters.json')
 $virtualNetworkGatewayParametersPath = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'virtualNetworkGateway.parameters.json')
-$managementTierJumpboxParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'managementTierJumpbox.parameters.json')
-$businessTierParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapAppsTier.parameters.json')
-$sapAppsTierScsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapAppsTier.scs.parameters.json')
-$sapDataTierParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapDataTier.parameters.json')
+$jumpboxParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'jumpbox.parameters.json')
+$wdpParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapWdp.parameters.json')
+$wdpMsgServerParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapMsgServer.parameters.json')
+$appsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapApps.parameters.json')
+$scsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapCentralSvc.parameters.json')
+$hanaParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapHana.parameters.json')
 
 $resourceGroupName = "ra-sap-hana-rg"
 
@@ -48,25 +50,33 @@ Login-AzureRmAccount -SubscriptionId $SubscriptionId | Out-Null
 $resourceGroup = New-AzureRmResourceGroup -Name $resourceGroupName -Location $Location
 
 Write-Host "Deploying virtual network..."
-New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-vnet-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
     -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
 
 # Write-Host "Deploying virtual network gateway..."
 # New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-gateway-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
 #     -TemplateUri $virtualNetworkGatewayTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkGatewayParametersPath
 
-Write-Host "Deploying jumpbox in management tier..."
-New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-mgmt-jb-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $managementTierJumpboxParametersFile
+Write-Host "Deploying jumpbox server..."
+New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
 
-Write-Host "Deploying SAP Apps tier..."
-New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-apps-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $businessTierParametersFile
+Write-Host "Deploying SAP Web Dispatcher cluster..."
+New-AzureRmResourceGroupDeployment -Name "sap-wdp-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $wdpParametersFile
 
-Write-Host "Deploying SAP Apps (SCS) tier..."
-New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-apps-scs-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $sapAppsTierScsParametersFile
+Write-Host "Deploying SAP Message server..."
+New-AzureRmResourceGroupDeployment -Name "sap-wdp-msg-server-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $wdpMsgServerParametersFile
 
-Write-Host "Deploying SAP Hana DB tier..."
-New-AzureRmResourceGroupDeployment -Name "ra-sap-hana-db-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $sapDataTierParametersFile
+Write-Host "Deploying SAP Application cluster..."
+New-AzureRmResourceGroupDeployment -Name "sap-app-server-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $appsParametersFile
+
+Write-Host "Deploying SAP Central Service cluster..."
+New-AzureRmResourceGroupDeployment -Name "sap-scs-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $scsParametersFile
+
+Write-Host "Deploying SAP Hana Server..."
+New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile

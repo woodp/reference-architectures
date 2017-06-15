@@ -4,21 +4,20 @@
   "parameters": {
     "virtualMachinesSettings": {
       "value": {
-        "namePrefix": "ra-sap-data",
-        "computerNamePrefix": "hana-db",
-        "size": "Standard_GS5",
+        "namePrefix": "sap-apps",
+        "computerNamePrefix": "sap-apps",
+        "size": "Standard_DS13_v2",
         "adminUsername": "testuser",
         "adminPassword": "AweS0me@PW",
-        "osType": "linux",
+        "osType": "windows",
         "osAuthenticationType": "password",
         "sshPublicKey": "",
         "nics": [
           {
             "isPublic": "false",
             "isPrimary": "true",
-            "subnetName": "SAPDataSubnet",
+            "subnetName": "SAPAppsSubnet",
             "privateIPAllocationMethod": "dynamic",
-            "publicIPAllocationMethod": "static",
             "enableIPForwarding": false,
             "domainNameLabelPrefix": "",
             "dnsServers": []
@@ -26,24 +25,23 @@
           {
             "isPublic": "false",
             "isPrimary": "false",
-            "subnetName": "SAPDataSubnet",
+            "subnetName": "MgmtSubnet",
             "privateIPAllocationMethod": "dynamic",
-            "publicIPAllocationMethod": "static",
             "enableIPForwarding": false,
             "domainNameLabelPrefix": "",
             "dnsServers": []
           }
         ],
         "imageReference": {
-          "publisher": "SUSE",
-          "offer": "SLES-Priority",
-          "sku": "12-SP2",
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "2012-R2-Datacenter",
           "version": "latest"
         },
         "dataDisks": {
-          "count": 2,
+          "count": 0,
           "properties": {
-            "diskSizeGB": 1023,
+            "diskSizeGB": 128,
             "caching": "None",
             "createOption": "Empty"
           }
@@ -54,7 +52,7 @@
         "extensions": [],
         "availabilitySet": {
           "useExistingAvailabilitySet": "No",
-          "name": ""
+          "name": "sap-apps-as"
         }
       }
     },
@@ -67,7 +65,7 @@
     "buildingBlockSettings": {
       "value": {
         "storageAccountsCount": 1,
-        "vmCount": 1,
+        "vmCount": 3,
         "vmStartIndex": 1
       }
     }

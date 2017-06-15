@@ -24,6 +24,10 @@
           {
             "name": "MgmtSubnet",
             "addressPrefix": "10.0.3.0/24"
+          },
+          {
+            "name": "ADSubnet",
+            "addressPrefix": "10.0.4.0/27"
           }
         ],
         "dnsServers": []

@@ -4,7 +4,7 @@
   "parameters": {
     "virtualMachinesSettings": {
       "value": {
-        "namePrefix": "ra-sap-hana-mgmt",
+        "namePrefix": "jumpbox",
         "computerNamePrefix": "jumpbox",
         "size": "Standard_DS1",
         "adminUsername": "testuser",
@@ -31,7 +31,7 @@
           "version": "latest"
         },
         "dataDisks": {
-          "count": 1,
+          "count": 0,
           "properties": {
             "diskSizeGB": 128,
             "caching": "None",
