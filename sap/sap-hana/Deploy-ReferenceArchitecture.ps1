@@ -54,6 +54,9 @@ $createAddsDomainControllerForestExtensionParametersFile = [System.IO.Path]::Com
 $infrastructureResourceGroupName = "sap-hana-infrastructure"
 $workloadResourceGroupName = "sap-hana-workload"
 
+$adVM1Name = "AD-VM1"
+$adVM2Name = "AD-VM2"
+
 # Login to Azure and select the subscription
 Login-AzureRmAccount -SubscriptionId $SubscriptionId | Out-Null
 
@@ -61,17 +64,17 @@ if ($Mode -eq "Infrastructure") {
     Write-Host "Creating infrastructure resource group..."
     $infrastructureResourceGroup = New-AzureRmResourceGroup -Name $infrastructureResourceGroupName -Location $Location
 
-    # Write-Host "Deploying virtual network..."
-    # New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
-    #     -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
+    Write-Host "Deploying virtual network..."
+    New-AzureRmResourceGroupDeployment -Name "vnet-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualNetworkTemplateUri.AbsoluteUri -TemplateParameterFile $virtualNetworkParametersPath
 
-    # Write-Host "Deploying jumpbox server..."
-    # New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
-    #     -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
+    Write-Host "Deploying jumpbox server..."
+    New-AzureRmResourceGroupDeployment -Name "jumpbox-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $jumpboxParametersFile
 
-    # Write-Host "Deploying ADDS servers..."
-    # New-AzureRmResourceGroupDeployment -Name "ad-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
-    #     -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $domainControllersParametersFile
+    Write-Host "Deploying ADDS servers..."
+    New-AzureRmResourceGroupDeployment -Name "ad-deployment" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $domainControllersParametersFile
 
     Write-Host "Updating virtual network DNS servers..."
     New-AzureRmResourceGroupDeployment -Name "update-dns" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
@@ -80,6 +83,10 @@ if ($Mode -eq "Infrastructure") {
     Write-Host "Creating ADDS forest..."
     New-AzureRmResourceGroupDeployment -Name "primary-ad-ext" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $createAddsDomainControllerForestExtensionParametersFile
+
+    Write-Host "Restarting primary and secondary Active Directory servers..."
+    Restart-AzureRmVM -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName -Name $adVM1Name
+    Restart-AzureRmVM -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName -Name $adVM2Name
 
     Write-Host "Creating ADDS domain controller..."
     New-AzureRmResourceGroupDeployment -Name "secondary-ad-ext" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
