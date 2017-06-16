@@ -45,6 +45,7 @@ $appsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sa
 $scsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapCentralSvc.parameters.json')
 $hanaParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapHana.parameters.json')
 $fsWitnessParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapFsWitness.parameters.json')
+$adJoinWorkloadParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'adJoinSapWorkload.parameters.json')
 
 # Azure ADDS Parameter Files
 $domainControllersParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\ad.parameters.json")
@@ -120,6 +121,10 @@ elseif ($Mode -eq "Workload") {
     Write-Host "Deploying SAP Hana Server..."
     New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
+
+    Write-Host "Joining SAP Workload *Windows* virtual machines to domain..."
+    New-AzureRmResourceGroupDeployment -Name "ad-join-sap-workload-ext" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $adJoinWorkloadParametersFile
 }
 elseif ($Mode -eq "Security")
 {
