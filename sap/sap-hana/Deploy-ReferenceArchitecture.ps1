@@ -44,6 +44,7 @@ $wdpMsgServerParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'paramete
 $appsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapApps.parameters.json')
 $scsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapCentralSvc.parameters.json')
 $hanaParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapHana.parameters.json')
+$fsWitnessParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapFsWitness.parameters.json')
 
 # Azure ADDS Parameter Files
 $domainControllersParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\ad.parameters.json")
@@ -111,6 +112,10 @@ elseif ($Mode -eq "Workload") {
     Write-Host "Deploying SAP Central Service cluster..."
     New-AzureRmResourceGroupDeployment -Name "sap-scs-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $scsParametersFile
+
+    Write-Host "Deploying SAP Central Service cluster file share witness..."
+    New-AzureRmResourceGroupDeployment -Name "sap-fs-witness-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
+        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $fsWitnessParametersFile
 
     Write-Host "Deploying SAP Hana Server..."
     New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
