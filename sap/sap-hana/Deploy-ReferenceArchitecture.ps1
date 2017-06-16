@@ -121,10 +121,6 @@ elseif ($Mode -eq "Workload") {
     Write-Host "Deploying SAP Hana Server..."
     New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
-
-    Write-Host "Joining SAP Workload *Windows* virtual machines to domain..."
-    New-AzureRmResourceGroupDeployment -Name "ad-join-sap-workload-ext" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
-        -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $adJoinWorkloadParametersFile
 }
 elseif ($Mode -eq "Security")
 {

@@ -21,7 +21,10 @@
             "publicIPAllocationMethod": "static",
             "enableIPForwarding": false,
             "domainNameLabelPrefix": "",
-            "dnsServers": []
+            "dnsServers": [
+              "10.0.4.4",
+              "10.0.4.5"
+            ]
           },
           {
             "isPublic": "false",
@@ -31,7 +34,10 @@
             "publicIPAllocationMethod": "static",
             "enableIPForwarding": false,
             "domainNameLabelPrefix": "",
-            "dnsServers": []
+            "dnsServers": [
+              "10.0.4.4",
+              "10.0.4.5"
+            ]
           }
         ],
         "imageReference": {
