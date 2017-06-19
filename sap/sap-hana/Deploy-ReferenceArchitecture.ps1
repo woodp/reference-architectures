@@ -118,7 +118,7 @@ elseif ($Mode -eq "Workload") {
     New-AzureRmResourceGroupDeployment -Name "sap-fs-witness-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $fsWitnessParametersFile
 
-    Write-Host "Deploying SAP Hana Server..."
+    Write-Host "Deploying SAP HANA Server..."
     New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
 }
