@@ -125,7 +125,7 @@
             "autoUpgradeMinorVersion": false,
             "settingsConfigMapperUri": "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
             "settingsConfig": {
-              "modulesURL": "https://raw.githubusercontent.com/rickrain/reference-architectures/larry/sap/sap/sap-hana/extensions/PrepareWSFC.ps1.zip",
+              "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/larry/sap/sap/sap-hana/extensions/PrepareWSFC.ps1.zip",
               "configurationFunction": "PrepareWSFC.ps1\\PrepareWSFC",
               "properties": {
               }
