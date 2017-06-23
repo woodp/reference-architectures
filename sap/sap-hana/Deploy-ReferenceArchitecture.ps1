@@ -7,7 +7,7 @@ param(
     [Parameter(Mandatory = $true)]
     $Location,
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Infrastructure", "Security", "Workload")]
+    [ValidateSet("All","Infrastructure", "Security", "Workload")]
     $Mode
 )
 
@@ -94,7 +94,8 @@ if ($Mode -eq "Infrastructure") {
     New-AzureRmResourceGroupDeployment -Name "secondary-ad-ext" -ResourceGroupName $infrastructureResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineExtensionsTemplate.AbsoluteUri -TemplateParameterFile $addAddsDomainControllerExtensionParametersFile
 }
-elseif ($Mode -eq "Workload") {
+
+if ($Mode -eq "Workload" -or $Mode -eq "All") {
     Write-Host "Creating workload resource group..."
     $workloadResourceGroup = New-AzureRmResourceGroup -Name $workloadResourceGroupName -Location $Location 
 
@@ -122,8 +123,9 @@ elseif ($Mode -eq "Workload") {
     New-AzureRmResourceGroupDeployment -Name "sap-hana-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
 }
-elseif ($Mode -eq "Security")
+
+if ($Mode -eq "Security" -or $Mode -eq "All")
 {
-    # TODO...
+    # Add security settings here...
 }
 
