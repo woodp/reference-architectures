@@ -40,12 +40,10 @@ $virtualNetworkParametersPath = [System.IO.Path]::Combine($PSScriptRoot, 'parame
 $virtualNetworkGatewayParametersPath = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'virtualNetworkGateway.parameters.json')
 $jumpboxParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'jumpbox.parameters.json')
 $wdpParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapWdp.parameters.json')
-$wdpMsgServerParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapMsgServer.parameters.json')
 $appsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapApps.parameters.json')
-$scsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapCentralSvc.parameters.json')
+$scsParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapScs.parameters.json')
 $hanaParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapHana.parameters.json')
 $fsWitnessParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'sapFsWitness.parameters.json')
-$adJoinWorkloadParametersFile = [System.IO.Path]::Combine($PSScriptRoot, 'parameters', 'adJoinSapWorkload.parameters.json')
 
 # Azure ADDS Parameter Files
 $domainControllersParametersFile = [System.IO.Path]::Combine($PSScriptRoot, "parameters\adds\ad.parameters.json")
@@ -101,10 +99,6 @@ elseif ($Mode -eq "Workload") {
     Write-Host "Deploying SAP Web Dispatcher cluster..."
     New-AzureRmResourceGroupDeployment -Name "sap-wdp-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
         -TemplateUri $loadBalancedVmSetTemplate.AbsoluteUri -TemplateParameterFile $wdpParametersFile
-
-    Write-Host "Deploying SAP Message server..."
-    New-AzureRmResourceGroupDeployment -Name "sap-wdp-msg-server-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `
-        -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $wdpMsgServerParametersFile
 
     Write-Host "Deploying SAP Application cluster..."
     New-AzureRmResourceGroupDeployment -Name "sap-app-server-deployment" -ResourceGroupName $workloadResourceGroup.ResourceGroupName `

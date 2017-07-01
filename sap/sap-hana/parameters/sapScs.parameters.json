@@ -18,22 +18,122 @@
         ],
         "loadBalancingRules": [
           {
-            "name": "httpRule",
-            "frontendPort": 80,
-            "backendPort": 80,
+            "name": "abapMsgServer",
+            "frontendPort": 3600,
+            "backendPort": 3600,
             "protocol": "Tcp",
             "backendPoolName": "backend-pool",
             "frontendIPConfigurationName": "sap-scs-lb-fe-config",
-            "probeName": "httpProbe",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "enqueuRepl",
+            "frontendPort": 50016,
+            "backendPort": 50016,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "enqueueServer",
+            "frontendPort": 3200,
+            "backendPort": 3200,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "fileShare",
+            "frontendPort": 445,
+            "backendPort": 445,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "internalAbapMsg",
+            "frontendPort": 3900,
+            "backendPort": 3900,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "httpMsgServer",
+            "frontendPort": 8100,
+            "backendPort": 8100,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "httpSapStartAscs",
+            "frontendPort": 50013,
+            "backendPort": 50013,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "httpsSaptartAscs",
+            "frontendPort": 50014,
+            "backendPort": 50014,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "httpSapStarter",
+            "frontendPort": 51013,
+            "backendPort": 51013,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "httpsSapStarter",
+            "frontendPort": 51014,
+            "backendPort": 51014,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
+            "enableFloatingIP": false
+          },
+          {
+            "name": "winRm",
+            "frontendPort": 5985,
+            "backendPort": 5985,
+            "protocol": "Tcp",
+            "backendPoolName": "backend-pool",
+            "frontendIPConfigurationName": "sap-scs-lb-fe-config",
+            "probeName": "healthProbe",
             "enableFloatingIP": false
           }
         ],
         "probes": [
           {
-            "name": "httpProbe",
-            "port": 80,
-            "protocol": "Http",
-            "requestPath": "/"
+            "name": "healthProbe",
+            "port": 59999,
+            "protocol": "Tcp",
+            "requestPath": null
           }
         ],
         "backendPools": [
@@ -47,8 +147,8 @@
     },
     "virtualMachinesSettings": {
       "value": {
-        "namePrefix": "sap-centralsvc",
-        "computerNamePrefix": "sap-centralsvc",
+        "namePrefix": "sap-scs",
+        "computerNamePrefix": "sap-scs",
         "size": "Standard_DS11_v2",
         "adminUsername": "testuser",
         "adminPassword": "AweS0me@PW",
@@ -60,7 +160,8 @@
             "isPublic": "false",
             "isPrimary": "true",
             "subnetName": "SAPAppsSubnet",
-            "privateIPAllocationMethod": "dynamic",
+            "privateIPAllocationMethod": "static",
+            "startingIPAddress": "10.0.1.5",
             "enableIPForwarding": false,
             "domainNameLabelPrefix": "",
             "dnsServers": [
@@ -72,7 +173,8 @@
             "isPublic": "false",
             "isPrimary": "false",
             "subnetName": "MgmtSubnet",
-            "privateIPAllocationMethod": "dynamic",
+            "privateIPAllocationMethod": "static",
+            "startingIPAddress": "10.0.3.5",
             "enableIPForwarding": false,
             "domainNameLabelPrefix": "",
             "dnsServers": [
@@ -127,8 +229,7 @@
             "settingsConfig": {
               "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/larry/sap/sap/sap-hana/extensions/PrepareWSFC.ps1.zip",
               "configurationFunction": "PrepareWSFC.ps1\\PrepareWSFC",
-              "properties": {
-              }
+              "properties": {}
             },
             "protectedSettingsConfig": {
               "items": {
@@ -151,7 +252,7 @@
     },
     "buildingBlockSettings": {
       "value": {
-        "storageAccountsCount": 2,
+        "storageAccountsCount": 1,
         "vmCount": 2,
         "vmStartIndex": 1
       }
