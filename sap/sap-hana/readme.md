@@ -1,8 +1,4 @@
----
-title: Deploy SAP NetWeaver and SAP HANA on Azure Readme
----
-
-In this readme, we have gathered helpful notes about the installation and infrastructure for your reference. For the complete reference architecture document, see [Deploy SAP NetWeaver and SAP HANA on Azure](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/sap/) in the [Azure Reference Architecture](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/) center.
+In this readme, we have gathered helpful notes about the installation and infrastructure for your reference. For the complete reference architecture document, see [Deploy SAP NetWeaver and SAP HANA on Azure](https://docs.microsoft.com/azure/architecture/reference-architectures/sap/) in the [Azure Reference Architecture](https://docs.microsoft.com/azure/architecture/reference-architectures/) center.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
@@ -59,7 +55,7 @@ You must use a remote desktop client to access the file share witness VM, then c
 
 - In this reference architecture, we assume the configuration of SAP instance **00**. If you choose a different instance number, change the load balancing rules in **sap-scs-lb**, the SCS internal load balancer.
 
-- For the 11 SCS load balancer rules, set the [idle timeout](https://azure.microsoft.com/en-us/blog/new-configurable-idle-timeout-for-azure-load-balancer/) to **30 minutes**.
+- For the 11 SCS load balancer rules, set the [idle timeout](https://azure.microsoft.com/blog/new-configurable-idle-timeout-for-azure-load-balancer/) to **30 minutes**.
 
 - Set the interval property of the load balancer health probe for the SCS cluster to **10 seconds**.
 
@@ -67,20 +63,20 @@ You must use a remote desktop client to access the file share witness VM, then c
 
 - When setting up Windows Server clustering on the SCS nodes, make sure to set the cluster probe port to the value **59999**. To do this, use PowerShell on one of the SCS VMs. Enter the following commands in an elevated PowerShell window:
 
-```
-      PS C:\Users\testuser> Get-ClusterResource "SAP NW1 IP" | Set-ClusterParameter -Name ProbePort -Value 59999
-```
+    ```powershell
+    PS C:\Users\testuser> Get-ClusterResource "SAP NW1 IP" | Set-ClusterParameter -Name ProbePort -Value 59999
+    ```
 
 - Install the SAP database instance on the HANA VM *after* installing the SCS cluster. However, the installation software needs access to the **sapmnt** share from the SCS cluster. To mount the **sapmnt** share on the Linux VM, perform the following as **root** before running **sapinst**:
 
-```
-      sap-hana1:/mnt # mount.cifs "//sapscscl/sapmnt" /mnt/sapmnt -o "username=testuser,password=<your password here>,uid=1002,gid=sapsys"
-```
+    ```powershell
+    sap-hana1:/mnt # mount.cifs "//sapscscl/sapmnt" /mnt/sapmnt -o "username=testuser,password=<your password here>,uid=1002,gid=sapsys"
+    ```
 
 - To test the whole environment, install the SAP GUI on **jumpbox-vm1** to represent a client machine accessing the environment.
 
 # SAP Web Dispatcher cluster
 
-- For the WDP load balancer rule, set the [idle timeout](https://azure.microsoft.com/en-us/blog/new-configurable-idle-timeout-for-azure-load-balancer/) to **30 minutes**.
+- For the WDP load balancer rule, set the [idle timeout](https://azure.microsoft.com/blog/new-configurable-idle-timeout-for-azure-load-balancer/) to **30 minutes**.
 
 - In the WDP load-balancer configuration, set the session persistence property to **Client IP**.
