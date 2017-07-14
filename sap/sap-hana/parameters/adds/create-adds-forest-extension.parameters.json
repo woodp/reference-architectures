@@ -5,7 +5,7 @@
     "virtualMachinesExtensionSettings": {
       "value": [
         {
-          "vms": [ "ad-vm1" ],
+          "vms": [ "ra-sap-ad-vm1" ],
           "extensions": [
             {
               "name": "install-adds-forest",

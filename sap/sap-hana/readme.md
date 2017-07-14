@@ -47,7 +47,7 @@ For details about how to install an SAP system, see [Installation of SAP Systems
 
 - If you choose a Linux operating system image from the Azure Gallery with the name “for SAP” -- for example, SLES 12 for SAP 12 SP2 (Premium) -- the configuration settings for the SAP applications already have been applied. We recommend verifying against the latest notes to ensure completeness of the operating system settings.
 
-- You must add an A-record to the DNS service on **ad-vm1** for the HANA VM. The HANA VM is not configured to be a member of the contoso.com domain, but rather uses local user credentials. To make it a member of the domain, use a Linux pluggable authentication module for Active Directory.
+- You must add an A-record to the DNS service on **ra-sap-ad-vm1** for the HANA VM. The HANA VM is not configured to be a member of the contoso.com domain, but rather uses local user credentials. To make it a member of the domain, use a Linux pluggable authentication module for Active Directory.
 
 # File share creation notes
 

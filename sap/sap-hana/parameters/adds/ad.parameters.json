@@ -4,7 +4,7 @@
   "parameters": {
     "virtualMachinesSettings": {
       "value": {
-        "namePrefix": "ad",
+        "namePrefix": "ra-sap-ad",
         "computerNamePrefix": "ad",
         "size": "Standard_DS1_v2",
         "osType": "windows",
@@ -45,7 +45,7 @@
         ],
         "availabilitySet": {
           "useExistingAvailabilitySet": "No",
-          "name": "ad-as"
+          "name": "ra-sap-ad-as"
         }
       }
     },

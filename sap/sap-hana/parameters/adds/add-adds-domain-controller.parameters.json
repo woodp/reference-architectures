@@ -5,7 +5,7 @@
     "virtualMachinesExtensionSettings": {
       "value": [
         {
-          "vms": [ "ad-vm2" ],
+          "vms": [ "ra-sap-ad-vm2" ],
           "extensions": [
             {
               "name": "join-ad-domain",

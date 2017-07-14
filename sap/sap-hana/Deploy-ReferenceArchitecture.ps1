@@ -54,8 +54,8 @@ $createAddsDomainControllerForestExtensionParametersFile = [System.IO.Path]::Com
 $infrastructureResourceGroupName = "sap-hana-infrastructure"
 $workloadResourceGroupName = "sap-hana-workload"
 
-$adVM1Name = "AD-VM1"
-$adVM2Name = "AD-VM2"
+$adVM1Name = "RA-SAP-AD-VM1"
+$adVM2Name = "RA-SAP-AD-VM2"
 
 # Login to Azure and select the subscription
 Login-AzureRmAccount -SubscriptionId $SubscriptionId | Out-Null

@@ -4,7 +4,7 @@
   "parameters": {
     "virtualMachinesSettings": {
       "value": {
-        "namePrefix": "jumpbox",
+        "namePrefix": "ra-sap-jumpbox",
         "computerNamePrefix": "jumpbox",
         "size": "Standard_DS1_V2",
         "adminUsername": "testuser",
