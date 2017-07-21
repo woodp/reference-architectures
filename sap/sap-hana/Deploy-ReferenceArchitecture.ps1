@@ -7,7 +7,7 @@ param(
     [Parameter(Mandatory = $true)]
     $Location,
     [Parameter(Mandatory = $true)]
-    [ValidateSet("All","Infrastructure", "Security", "Workload")]
+    [ValidateSet("All","Infrastructure", "Workload")]
     $Mode
 )
 
@@ -60,7 +60,7 @@ $adVM2Name = "RA-SAP-AD-VM2"
 # Login to Azure and select the subscription
 Login-AzureRmAccount -SubscriptionId $SubscriptionId | Out-Null
 
-if ($Mode -eq "Infrastructure") {
+if ($Mode -eq "Infrastructure" -or $Mode -eq "All") {
     Write-Host "Creating infrastructure resource group..."
     $infrastructureResourceGroup = New-AzureRmResourceGroup -Name $infrastructureResourceGroupName -Location $Location
 
@@ -118,8 +118,4 @@ if ($Mode -eq "Workload" -or $Mode -eq "All") {
         -TemplateUri $virtualMachineTemplate.AbsoluteUri -TemplateParameterFile $hanaParametersFile
 }
 
-if ($Mode -eq "Security" -or $Mode -eq "All")
-{
-    # Add security settings here...
-}
 
