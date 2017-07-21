@@ -80,3 +80,20 @@ You must use a remote desktop client to access the file share witness VM, then c
 - For the WDP load balancer rule, set the [idle timeout](https://azure.microsoft.com/blog/new-configurable-idle-timeout-for-azure-load-balancer/) to **30 minutes**.
 
 - In the WDP load-balancer configuration, set the session persistence property to **Client IP**.
+
+
+# Creating your own GitHub fork or branch 
+
+If you create your own fork or branch for a GitHub repository, you'll need to modify the following path to ensure you are running from your new repository.
+
+Modify the 5 path in the following 3 files by replacing '/master/' with your new branch such as '/new-branch/sup-branch/'.  So that the script can resolve to the correct files. 
+
+* add-adds-domain-controller.parameters.json
+  * "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/templates/adds/adds-domain-controller-extension-settings-mapper.json"
+  * "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/extensions/adds.ps1"
+* create-adds-forest-extension.parameters.json
+  * "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/templates/adds/ad-forest-extension-settings-mapper.json"
+  * "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/extensions/adds-forest.ps1"
+* sapScs.parameters.json
+  * "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/extensions/PrepareWSFC.ps1.zip"
+
