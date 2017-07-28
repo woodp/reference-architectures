@@ -1,0 +1,389 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "ra-ntier-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                },
+                {
+                  "name": "biz",
+                  "addressPrefix": "10.0.2.0/24"
+                },
+                {
+                  "name": "data",
+                  "addressPrefix": "10.0.3.0/24"
+                },
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "10.0.0.128/25"
+                }
+              ],
+              "dnsServers": []
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 3,
+            "namePrefix": "biz",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "biz",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-vnet"
+            },
+            "storageAccounts": {
+              "count": 3,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "dnsServers": [],
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "biz",
+                "backendPoolsNames": [
+                  "lb-bep1"
+                ],
+                "inboundNatRulesNames": []
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "ra-ntier-biz-config1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.2.250",
+                    "subnetName": "biz"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "lb-bep1",
+                  "frontendIPConfigurationName": "ra-ntier-biz-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "lb-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": []
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "data",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "data",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-vnet"
+            },
+            "storageAccounts": {
+              "count": 6,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": true,
+                "isPrimary": true,
+                "subnetName": "data",
+                "publicIPAllocationMethod": "Dynamic",
+                "privateIPAllocationMethod": "Dynamic",
+                "domainNameLabelPrefix": "rantierdatanode",
+                "dnsServers": []
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [
+              {
+                "name": "install-cassandra",
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-linux/extensions/linux/install-cassandra.sh"
+                  ],
+                  "commandToExecute": "[concat('bash install-cassandra.sh rantierdatanode1 rantierops1 ra-ntier-dc-',resourceGroup().location,' ',resourceGroup().location)]"
+                },
+                "protectedSettings": {}
+              }
+            ]
+          }
+        },
+        {
+          "type": "NetworkSecurityGroup",
+          "settings": [
+            {
+              "name": "ra-ntier-biz-nsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-ntier-vnet",
+                  "subnets": [
+                    "biz"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "allow-web-traffic",
+                  "description": "Allow traffic originating from web layer.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "10.0.1.0/24",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-mgmt-ssh",
+                  "direction": "Inbound",
+                  "priority": 110,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 22,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 120,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
+              "name": "ra-ntier-mgmt-jb-nsg",
+              "networkInterfaces": [
+                {
+                  "name": "ra-ntier-mgmt-vm1-nic1"
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "default-allow-ssh",
+                  "direction": "Inbound",
+                  "priority": 100,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 22,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 120,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
+              "name": "ra-ntier-mgmt-ops-nsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-ntier-vnet",
+                  "subnets": [
+                    "data"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "allow-mgmt-ssh",
+                  "direction": "Inbound",
+                  "priority": 100,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 22,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "allow-http",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 8888,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 110,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 120,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
+              "name": "ra-ntier-data-nsg",
+              "networkInterfaces": [
+                {
+                  "name": "jb-vm1-nic1"
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "allow-mgmt-ssh",
+                  "direction": "Inbound",
+                  "priority": 100,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 22,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "allow-ops-center-http",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "8888-65535",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 110,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-native",
+                  "protocol": "TCP",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 9042,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 120,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-jmx",
+                  "protocol": "TCP",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 7199,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 130,
+                  "direction": "Inbound"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
