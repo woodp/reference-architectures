@@ -1,0 +1,154 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "ra-multi-vm-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "ra-multi",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "cn",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": { "name": "ra-multi-vm-vnet" },
+            "storageAccounts": {
+                "count": 1,
+                "managed": true
+            },
+            "diagnosticStorageAccounts": {
+                "count": 1,
+                "encryptBlobStorage": true,
+                "encryptFileStorage": true
+            },
+            "nics": [
+                {
+                    "dnsServers": [],
+                    "isPrimary": true,
+                    "isPublic": false,
+                    "privateIPAllocationMethod": "Dynamic", 
+                    "subnetName": "web",
+                    "backendPoolsNames": [
+                      "ra-multi-vm-lb-bep1"
+                    ],
+                    "inboundNatRulesNames": [
+                      "ra-multi-vm-lb-ibnr1"
+                    ]
+                }
+            ],
+            "osType": "linux",
+            "dataDisks": { 
+                "count": 1,
+                "properties": {
+                    "diskSizeGB": 128,
+                    "caching": "None",
+                    "createOption": "empty"
+                }
+            },
+            "osDisk": {
+              "caching":"ReadWrite"
+            },
+            "extensions": [
+                {
+                    "name": "apache-config-ext",
+                    "publisher": "Microsoft.Azure.Extensions",
+                    "type": "CustomScript",
+                    "typeHandlerVersion": "2.0",
+                    "autoUpgradeMinorVersion": true,
+                    "settings": {
+                        "fileUris":[ "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/multi-vm/extensions/linux/install-apache.sh"],
+                        "commandToExecute": "sh install-apache.sh"
+                    },
+                    "protectedSettings": {}
+
+                }
+            ],
+            "loadBalancerSettings": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "ra-multi-vm-lb-fe-config1",
+                        "loadBalancerType": "Public"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "lbr1",
+                        "frontendPort": 80,
+                        "backendPort": 80,
+                        "protocol": "Tcp",
+                        "backendPoolName": "ra-multi-vm-lb-bep1",
+                        "frontendIPConfigurationName": "ra-multi-vm-lb-fe-config1",
+                        "enableFloatingIP": false,
+                        "probeName": "lbp1"
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "lbp1",
+                        "port": 80,
+                        "protocol": "Http",
+                        "requestPath": "/"
+                    }
+                ],
+                "backendPools": [
+                    {
+                        "name": "ra-multi-vm-lb-bep1",
+                        "nicIndex": 0
+                    }
+                ],
+                "inboundNatRules": [
+                    {
+                        "name": "ra-multi-vm-lb-ibnr1",
+                        "namePrefix": "rdp",
+                        "frontendIPConfigurationName": "ra-multi-vm-lb-fe-config1",
+                        "startingFrontendPort": 50000,
+                        "backendPort": 3389,
+                        "natRuleType": "All",
+                        "protocol": "Tcp",
+                        "nicIndex": 0,
+                        "enableFloatingIP": false
+                    }
+                ]
+            }
+          }
+        },
+        {
+            "type":"NetworkSecurityGroup",
+            "settings": [
+              {
+                  "name": "ra-multi-vm-nsg",                            "securityRules": [
+                    { "name": "SSH"}, 
+                    { "name":"HTTP" }
+                  ],
+                  "virtualNetworks": [
+                    {
+                        "name": "ra-multi-vm-vnet",
+                        "subnets": [ "web" ]
+                    }
+                  ]
+              }
+            ]
+        }
+      ]
+    }
+  }
+}

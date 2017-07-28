@@ -1,0 +1,1026 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "ra-ntier-sql-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                },
+                {
+                  "name": "biz",
+                  "addressPrefix": "10.0.2.0/24"
+                },
+                {
+                  "name": "sql",
+                  "addressPrefix": "10.0.3.0/24"
+                },
+                {
+                  "name": "ad",
+                  "addressPrefix": "10.0.4.0/24"
+                },
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "10.0.0.128/25"
+                }
+              ],
+              "dnsServers": [
+                "10.0.4.4",
+                "10.0.4.5",
+                "168.63.129.16"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "jb",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": true,
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
+                "subnetName": "mgmt"
+              }
+            ],
+            "osType": "windows",
+            "dataDisks": {
+              "count": 1
+            },
+            "extensions": [
+              {
+                "name": "IaaSAntimalware",
+                "publisher": "Microsoft.Azure.Security",
+                "type": "IaaSAntimalware",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "AntimalwareEnabled": true,
+                  "RealtimeProtectionEnabled": "true",
+                  "ScheduledScanSettings": {
+                    "isEnabled": "false",
+                    "day": "7",
+                    "time": "120",
+                    "scanType": "Quick"
+                  },
+                  "Exclusions": {
+                    "Extensions": "",
+                    "Paths": "",
+                    "Processes": ""
+                  }
+                },
+                "protectedSettings": {}
+              }
+            ]
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "ad1",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Static",
+                "publicIPAllocationMethod": "Static",
+                "startingIPAddress": "10.0.4.4",
+                "subnetName": "ad"
+              }
+            ],
+            "osType": "windows",
+            "dataDisks": {
+              "count": 1
+            },
+            "extensions": [
+              {
+                "name": "install-adds-forest",
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.8",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-windows/extensions/adds-forest.ps1"
+                  ]
+                },
+                "protectedSettings": {
+                  "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File adds-forest.ps1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "ad2",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Static",
+                "publicIPAllocationMethod": "Static",
+                "startingIPAddress": "10.0.4.5",
+                "subnetName": "ad"
+              }
+            ],
+            "osType": "windows",
+            "dataDisks": {
+              "count": 1
+            },
+            "extensions": [
+              {
+                "name": "join-ad-domain",
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "Name": "contoso.com",
+                  "OUPath": "",
+                  "User": "contoso.com\\testadminuser",
+                  "Restart": true,
+                  "Options": 3
+                },
+                "protectedSettings": {
+                  "Password": "test$!Passw0rd111"
+                }
+              },
+              {
+                "name": "install-adds",
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.8",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-windows/extensions/adds.ps1"
+                  ]
+                },
+                "protectedSettings": {
+                  "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File adds.ps1 -AdminUser testadminuser -AdminPassword test$!Passw0rd111 -SafeModePassword Saf3M0de@PW -DomainName contoso.com -SiteName Default-First-Site-Name"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "ra-ntier-sql-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                },
+                {
+                  "name": "biz",
+                  "addressPrefix": "10.0.2.0/24"
+                },
+                {
+                  "name": "sql",
+                  "addressPrefix": "10.0.3.0/24"
+                },
+                {
+                  "name": "ad",
+                  "addressPrefix": "10.0.4.0/24"
+                },
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "10.0.0.128/25"
+                }
+              ],
+              "dnsServers": [
+                "10.0.4.4",
+                "10.0.4.5"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "sql",
+            "size": "Standard_DS3_v2",
+            "computerNamePrefix": "sql",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "osType": "windows",
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "imageReference": {
+              "offer": "SQL2016-WS2012R2",
+              "publisher": "MicrosoftSQLServer",
+              "sku": "Enterprise",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 2,
+              "properties": {
+                "diskSizeGB": 1000,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "count": 2,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPrimary": true,
+                "isPublic": false,
+                "subnetName": "sql",
+                "privateIPAllocationMethod": "Dynamic",
+                "dnsServers": [
+                  "10.0.4.4",
+                  "10.0.4.5"
+                ],
+                "backendPoolsNames": [
+                  "lbbep1"
+                ]
+              }
+            ],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "lbfe1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.3.100",
+                    "subnetName": "sql"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "SQLAlwaysOnEndPointListener",
+                  "frontendPort": 1433,
+                  "backendPort": 1433,
+                  "protocol": "Tcp",
+                  "backendPoolName": "lbbep1",
+                  "frontendIPConfigurationName": "lbfe1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 59999,
+                  "protocol": "Tcp",
+                  "requestPath": null
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "lbbep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": []
+            },
+            "extensions": [
+              {
+                "name": "join-ad-domain",
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "Name": "contoso.com",
+                  "OUPath": "",
+                  "User": "contoso.com\\testadminuser",
+                  "Restart": true,
+                  "Options": 3
+                },
+                "protectedSettings": {
+                  "Password": "test$!Passw0rd111"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "fsw",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "fsw",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "osType": "windows",
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "count": 1
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "isPrimary": true,
+                "subnetName": "sql",
+                "privateIPAllocationMethod": "Dynamic",
+                "dnsServers": [
+                  "10.0.4.4",
+                  "10.0.4.5"
+                ]
+              }
+            ],
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [
+              {
+                "name": "join-ad-domain",
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "Name": "contoso.com",
+                  "OUPath": "",
+                  "User": "contoso.com\\testadminuser",
+                  "Restart": true,
+                  "Options": 3
+                },
+                "protectedSettings": {
+                  "Password": "test$!Passw0rd111"
+                }
+              },
+              {
+                "name": "createFileShareWitness",
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.16",
+                "autoUpgradeMinorVersion": false,
+                "settings": {
+                  "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-windows/extensions/CreateFileShareWitness.ps1.zip",
+                  "configurationFunction": "CreateFileShareWitness.ps1\\CreateFileShareWitness",
+                  "properties": {
+                    "domainName": "contoso.com",
+                    "SharePath": "sql-fs",
+                    "adminCreds": {
+                      "userName": "testadminuser",
+                      "password": "privateSettingsRef:adminPassword"
+                    }
+                  }
+                },
+                "protectedSettings": {
+                  "items": {
+                    "adminPassword": "test$!Passw0rd111"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "VirtualMachineExtension",
+          "settings": [
+            {
+              "vms": [
+                "sql-vm1",
+                "sql-vm2"
+              ],
+              "extensions": [
+                {
+                  "name": "SqlVmIaasExtension",
+                  "type": "SqlIaaSAgent",
+                  "publisher": "Microsoft.SqlServer.Management",
+                  "typeHandlerVersion": "1.2",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "AutoTelemetrySettings": {
+                      "Region": "West US 2"
+                    },
+                    "AutoPatchingSettings": {
+                      "PatchCategory": "WindowsMandatoryUpdates",
+                      "Enable": true,
+                      "DayOfWeek": "Sunday",
+                      "MaintenanceWindowStartingHour": "12",
+                      "MaintenanceWindowDuration": "60"
+                    },
+                    "AutoBackupSettings": {
+                      "Enable": false,
+                      "RetentionPeriod": "30",
+                      "EnableEncryption": false
+                    }
+                  },
+                  "protectedSettings": {}
+                }
+              ]
+            },
+            {
+              "vms": [
+                "sql-vm1"
+              ],
+              "extensions": [
+                {
+                  "name": "sqlAOPrepare",
+                  "publisher": "Microsoft.Powershell",
+                  "type": "DSC",
+                  "typeHandlerVersion": "2.19",
+                  "autoUpgradeMinorVersion": false,
+                  "settings": {
+                    "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-windows/extensions/PrepareAlwaysOnSqlServer.ps1.zip",
+                    "configurationFunction": "PrepareAlwaysOnSqlServer.ps1\\PrepareAlwaysOnSqlServer",
+                    "properties": {
+                      "domainName": "contoso.com",
+                      "sqlAlwaysOnEndpointName": "ra-ntier-sql-hadr",
+                      "adminCreds": {
+                        "userName": "testadminuser",
+                        "password": "privateSettingsRef:adminPassword"
+                      },
+                      "sqlServiceCreds": {
+                        "userName": "sqlservicetestuser",
+                        "password": "privateSettingsRef:sqlServerServiceAccountPassword"
+                      },
+                      "NumberOfDisks": "2",
+                      "WorkloadType": "GENERAL"
+                    }
+                  },
+                  "protectedSettings": {
+                    "items": {
+                      "adminPassword": "test$!Passw0rd111",
+                      "sqlServerServiceAccountPassword": "AweS0me@SQLServicePW"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "vms": [
+                "sql-vm2"
+              ],
+              "extensions": [
+                {
+                  "name": "configuringAlwaysOn",
+                  "publisher": "Microsoft.Powershell",
+                  "type": "DSC",
+                  "typeHandlerVersion": "2.19",
+                  "autoUpgradeMinorVersion": false,
+                  "settings": {
+                    "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-windows/extensions/CreateFailoverCluster.ps1.zip",
+                    "configurationFunction": "CreateFailoverCluster.ps1\\CreateFailoverCluster",
+                    "properties": {
+                      "domainName": "contoso.com",
+                      "clusterName": "ra-ntier-sql-fc",
+                      "sharePath": "\\\\fsw-vm1\\sql-fs",
+                      "nodes": [
+                        "sql-vm1",
+                        "sql-vm2"
+                      ],
+                      "sqlAlwaysOnEndpointName": "ra-ntier-sql-hadr",
+                      "sqlAlwaysOnAvailabilityGroupName": "alwayson-ag",
+                      "sqlAlwaysOnAvailabilityGroupListenerName": "alwayson-ag-listener",
+                      "SqlAlwaysOnAvailabilityGroupListenerPort": "1433",
+                      "databaseNames": "AutoHa-sample",
+                      "lbName": "ra-ntier-sql-lb",
+                      "lbAddress": "10.0.3.100",
+                      "primaryReplica": "sql-vm2",
+                      "secondaryReplica": "sql-vm1",
+                      "dnsServerName": "ad1-vm1",
+                      "adminCreds": {
+                        "userName": "testadminuser",
+                        "password": "privateSettingsRef:adminPassword"
+                      },
+                      "sqlServiceCreds": {
+                        "userName": "sqlservicetestuser",
+                        "password": "privateSettingsRef:sqlServerServiceAccountPassword"
+                      },
+                      "SQLAuthCreds": {
+                        "userName": "sqlsa",
+                        "password": "privateSettingsRef:sqlAuthPassword"
+                      },
+                      "NumberOfDisks": "2",
+                      "WorkloadType": "GENERAL"
+                    }
+                  },
+                  "protectedSettings": {
+                    "items": {
+                      "adminPassword": "test$!Passw0rd111",
+                      "sqlServerServiceAccountPassword": "AweS0me@SQLServicePW",
+                      "sqlAuthPassword": "AweS0me@SQLPW"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "web",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "web",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "count": 1,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "dnsServers": [],
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "web",
+                "backendPoolsNames": [
+                  "ntier-vm-lb-bep1"
+                ],
+                "inboundNatRulesNames": []
+              }
+            ],
+            "osType": "windows",
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [
+              {
+                "name": "join-ad-domain",
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "Name": "contoso.com",
+                  "OUPath": "",
+                  "User": "contoso.com\\testadminuser",
+                  "Restart": true,
+                  "Options": 3
+                },
+                "protectedSettings": {
+                  "Password": "test$!Passw0rd111"
+                }
+              },
+              {
+                "name": "iis-config-ext",
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/multi-vm/extensions/windows/iisaspnet.ps1.zip",
+                  "configurationFunction": "iisaspnet.ps1\\iisaspnet"
+                },
+                "protectedSettings": {}
+              }
+            ],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "ntier-vm-lb-fe-config1",
+                  "loadBalancerType": "Public"
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "ntier-vm-lb-bep1",
+                  "frontendIPConfigurationName": "ntier-vm-lb-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "ntier-vm-lb-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": []
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "biz",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "biz",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-sql-vnet"
+            },
+            "storageAccounts": {
+              "count": 1,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "dnsServers": [],
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "biz",
+                "backendPoolsNames": [
+                  "lb-bep1"
+                ],
+                "inboundNatRulesNames": []
+              }
+            ],
+            "osType": "windows",
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [
+              {
+                "name": "join-ad-domain",
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "Name": "contoso.com",
+                  "OUPath": "",
+                  "User": "contoso.com\\testadminuser",
+                  "Restart": true,
+                  "Options": 3
+                },
+                "protectedSettings": {
+                  "Password": "test$!Passw0rd111"
+                }
+              },
+              {
+                "name": "iis-config-ext",
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/multi-vm/extensions/windows/iisaspnet.ps1.zip",
+                  "configurationFunction": "iisaspnet.ps1\\iisaspnet"
+                },
+                "protectedSettings": {}
+              }
+            ],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "biz-lb-fe-config1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.2.100",
+                    "subnetName": "biz"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "lb-bep1",
+                  "frontendIPConfigurationName": "biz-lb-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "lb-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": []
+            }
+          }
+        },
+        {
+          "type": "NetworkSecurityGroup",
+          "settings": [
+            {
+              "name": "sqlnsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-ntier-sql-vnet",
+                  "subnets": [
+                    "sql"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "allow-traffic-from-biz",
+                  "description": "Allow traffic originating from Business tier.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 1433,
+                  "sourceAddressPrefix": "10.0.2.0/24",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-mgmt-rdp",
+                  "direction": "Inbound",
+                  "priority": 110,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 3389,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 120,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
+              "name": "biznsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-ntier-sql-vnet",
+                  "subnets": [
+                    "biz"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "allow-web-tier-traffic",
+                  "description": "Allow web traffic originating from Web Tier.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "10.0.1.0/24",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-mgmt-rdp",
+                  "direction": "Inbound",
+                  "priority": 110,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 3389,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 120,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
+              "name": "webnsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-ntier-sql-vnet",
+                  "subnets": [
+                    "web"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "allow-web-traffic-from-external",
+                  "description": "Allow web traffic originating externally.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-web-traffic-from-vnet",
+                  "description": "Allow web traffic originating from vnet.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "10.0.0.0/16",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 110,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-mgmt-rdp",
+                  "direction": "Inbound",
+                  "priority": 120,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 3389,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 130,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
+              "name": "mgmtnsg",
+              "networkInterfaces": [
+                {
+                  "name": "jb-vm1-nic1"
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "default-allow-rdp",
+                  "description": "Allow RDP Subnet",
+                  "protocol": "TCP",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 3389,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 120,
+                  "direction": "Inbound"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

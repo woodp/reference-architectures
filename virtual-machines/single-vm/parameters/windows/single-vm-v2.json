@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "ra-single-vm-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "ra-sngl",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": { "name": "ra-single-vm-vnet" },
+            "storageAccounts": {
+                "managed": true
+            },
+            "diagnosticStorageAccounts": {
+                "count": 1,
+                "encryptBlobStorage": true,
+                "encryptFileStorage": true
+            },
+            "nics": [
+                {
+                    "isPublic": true    ,
+                    "privateIPAllocationMethod": "Dynamic", 
+                    "subnetName": "web"
+                }
+            ],
+            "osType": "windows",
+            "dataDisks": { 
+                "count": 1
+            }
+          }
+        },
+        {
+            "type":"NetworkSecurityGroup",
+            "settings": [
+              {
+                  "name": "ra-single-vm-nsg",                            "securityRules": [
+                    { "name": "RDP"}
+                  ],
+                  "virtualNetworks": [
+                    {
+                        "name": "ra-single-vm-vnet",
+                        "subnets": [ "web" ]
+                    }
+                  ]
+              }
+            ]
+        }
+      ]
+    }
+  }
+}
