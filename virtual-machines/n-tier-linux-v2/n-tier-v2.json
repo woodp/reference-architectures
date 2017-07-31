@@ -131,7 +131,7 @@
         {
           "type": "VirtualMachine",
           "settings": {
-            "vmCount": 2,
+            "vmCount": 6,
             "namePrefix": "data",
             "size": "Standard_DS1_v2",
             "computerNamePrefix": "data",
@@ -197,6 +197,225 @@
           }
         },
         {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 3,
+            "namePrefix": "web",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "web",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-vnet"
+            },
+            "storageAccounts": {
+              "count": 3,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "web",
+                "backendPoolsNames": [
+                  "ra-multi-vm-lb-bep1"
+                ],
+                "inboundNatRulesNames": [
+                  "ra-multi-vm-lb-ibnr1"
+                ]
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [
+              {
+                "name": "apache-config-ext",
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/multi-vm/extensions/linux/install-apache.sh"
+                  ],
+                  "commandToExecute": "sh install-apache.sh"
+                },
+                "protectedSettings": {}
+              }
+            ],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "ra-multi-vm-lb-fe-config1",
+                  "loadBalancerType": "Public"
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "ra-multi-vm-lb-bep1",
+                  "frontendIPConfigurationName": "ra-multi-vm-lb-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "ra-multi-vm-lb-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": [
+                {
+                  "name": "ra-multi-vm-lb-ibnr1",
+                  "namePrefix": "rdp",
+                  "frontendIPConfigurationName": "ra-multi-vm-lb-fe-config1",
+                  "startingFrontendPort": 50000,
+                  "backendPort": 3389,
+                  "natRuleType": "All",
+                  "protocol": "Tcp",
+                  "nicIndex": 0,
+                  "enableFloatingIP": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "jb",
+            "computerNamePrefix": "jb",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "name": "ra-ntier-mgmt-vm1-nic1",
+                "isPublic": true,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Dynamic",
+                "subnetName": "mgmt"
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "ops",
+            "computerNamePrefix": "ops",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "ra-ntier-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "name": "ra-ntier-ops-vm1-nic1",
+                "isPublic": true,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Dynamic",
+                "subnetName": "mgmt",
+                "domainNameLabelPrefix": "rantierops"
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1
+            },
+            "extensions": [
+              {
+                "name": "install-opscenter",
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-linux/extensions/linux/install-opscenter.sh"
+                  ],
+                  "commandToExecute": "[concat('bash install-opscenter.sh rantierdatanode1 ra-ntier-dc-',resourceGroup().location)]"
+                },
+                "protectedSettings": {}
+              }
+            ]
+          }
+        },
+        {
           "type": "NetworkSecurityGroup",
           "settings": [
             {
@@ -248,6 +467,67 @@
               ]
             },
             {
+              "name": "ra-ntier-web-nsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-ntier-vnet",
+                  "subnets": [
+                    "web"
+                  ]
+                }
+              ],
+              "networkInterfaces": [],
+              "securityRules": [
+                {
+                  "name": "allow-web-traffic-from-external",
+                  "description": "Allow web traffic originating externally.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-web-traffic-from-vnet",
+                  "description": "Allow web traffic originating from vnet.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "10.0.0.0/16",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 110,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "allow-mgmt-ssh",
+                  "direction": "Inbound",
+                  "priority": 120,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 22,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "deny-other-traffic",
+                  "description": "Deny all other traffic",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "*",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Deny",
+                  "priority": 130,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+            {
               "name": "ra-ntier-mgmt-jb-nsg",
               "networkInterfaces": [
                 {
@@ -282,12 +562,9 @@
             },
             {
               "name": "ra-ntier-mgmt-ops-nsg",
-              "virtualNetworks": [
+              "networkInterfaces": [
                 {
-                  "name": "ra-ntier-vnet",
-                  "subnets": [
-                    "data"
-                  ]
+                  "name":"ra-ntier-ops-vm1-nic1"
                 }
               ],
               "securityRules": [
@@ -329,9 +606,12 @@
             },
             {
               "name": "ra-ntier-data-nsg",
-              "networkInterfaces": [
+              "virtualNetworks": [
                 {
-                  "name": "jb-vm1-nic1"
+                  "name": "ra-ntier-vnet",
+                  "subnets": [
+                    "data"
+                  ]
                 }
               ],
               "securityRules": [
