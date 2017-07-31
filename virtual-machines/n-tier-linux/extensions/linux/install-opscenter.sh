@@ -21,4 +21,4 @@ wget https://github.com/DSPN/install-datastax-ubuntu/archive/master.zip
 unzip master.zip
 cd install-datastax-ubuntu-master/bin
 
-./opscenter.sh $cloud_type $seed_node_dns_name
+sudo ./opscenter.sh $cloud_type $seed_node_dns_name
