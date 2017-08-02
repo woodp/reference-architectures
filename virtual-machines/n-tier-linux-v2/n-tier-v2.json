@@ -307,7 +307,7 @@
                   "backendPort": 22,
                   "natRuleType": "All",
                   "protocol": "Tcp",
-                  "nicIndex": 0,
+                  "nicIndex": 0
                 }
               ]
             }
