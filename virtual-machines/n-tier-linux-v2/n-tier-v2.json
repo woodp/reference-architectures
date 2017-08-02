@@ -301,14 +301,13 @@
               "inboundNatRules": [
                 {
                   "name": "ra-multi-vm-lb-ibnr1",
-                  "namePrefix": "rdp",
+                  "namePrefix": "ssh",
                   "frontendIPConfigurationName": "ra-multi-vm-lb-fe-config1",
                   "startingFrontendPort": 50000,
-                  "backendPort": 3389,
+                  "backendPort": 22,
                   "natRuleType": "All",
                   "protocol": "Tcp",
                   "nicIndex": 0,
-                  "enableFloatingIP": false
                 }
               ]
             }
