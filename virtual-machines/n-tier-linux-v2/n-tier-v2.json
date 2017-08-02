@@ -189,7 +189,7 @@
                   "fileUris": [
                     "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-linux/extensions/linux/install-cassandra.sh"
                   ],
-                  "commandToExecute": "[concat('bash install-cassandra.sh rantierdatanode1 rantierops1 ra-ntier-dc-',resourceGroup().location,' ',resourceGroup().location)]"
+                  "commandToExecute": "[concat('bash install-cassandra.sh rantierdatanode11 rantierops11 ra-ntier-dc-',resourceGroup().location,' ',resourceGroup().location)]"
                 },
                 "protectedSettings": {}
               }
@@ -336,7 +336,6 @@
             },
             "nics": [
               {
-                "name": "ra-ntier-mgmt-vm1-nic1",
                 "isPublic": true,
                 "isPrimary": true,
                 "privateIPAllocationMethod": "Dynamic",
@@ -378,7 +377,6 @@
             },
             "nics": [
               {
-                "name": "ra-ntier-ops-vm1-nic1",
                 "isPublic": true,
                 "isPrimary": true,
                 "privateIPAllocationMethod": "Dynamic",
@@ -408,7 +406,7 @@
                   "fileUris": [
                     "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-linux/extensions/linux/install-opscenter.sh"
                   ],
-                  "commandToExecute": "[concat('bash install-opscenter.sh rantierdatanode1 ra-ntier-dc-',resourceGroup().location)]"
+                  "commandToExecute": "[concat('bash install-opscenter.sh rantierdatanode11 ', resourceGroup().location)]"
                 },
                 "protectedSettings": {}
               }
@@ -531,7 +529,7 @@
               "name": "ra-ntier-mgmt-jb-nsg",
               "networkInterfaces": [
                 {
-                  "name": "ra-ntier-mgmt-vm1-nic1"
+                  "name": "jb-vm1-nic1"
                 }
               ],
               "securityRules": [
@@ -564,7 +562,7 @@
               "name": "ra-ntier-mgmt-ops-nsg",
               "networkInterfaces": [
                 {
-                  "name":"ra-ntier-ops-vm1-nic1"
+                  "name": "ops-vm1-nic1"
                 }
               ],
               "securityRules": [
