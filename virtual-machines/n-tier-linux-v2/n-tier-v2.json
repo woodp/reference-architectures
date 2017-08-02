@@ -406,7 +406,7 @@
                   "fileUris": [
                     "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/n-tier-linux/extensions/linux/install-opscenter.sh"
                   ],
-                  "commandToExecute": "[concat('bash install-opscenter.sh rantierdatanode11 ', resourceGroup().location)]"
+                  "commandToExecute": "[concat('sudo bash install-opscenter.sh rantierdatanode11 ', resourceGroup().location)]"
                 },
                 "protectedSettings": {}
               }
