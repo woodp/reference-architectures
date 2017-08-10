@@ -1,0 +1,572 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "dmz-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "GatewaySubnet",
+                  "addressPrefix": "10.0.255.224/27"
+                },
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "10.0.0.128/25"
+                },
+                {
+                  "name": "dmz-in",
+                  "addressPrefix": "10.0.0.64/27"
+                },
+                {
+                  "name": "dmz-out",
+                  "addressPrefix": "10.0.0.96/27"
+                },
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                },
+                {
+                  "name": "biz",
+                  "addressPrefix": "10.0.2.0/24"
+                },
+                {
+                  "name": "data",
+                  "addressPrefix": "10.0.3.0/24"
+                }
+              ],
+              "dnsServers": []
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "web",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "web",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "dmz-vnet"
+            },
+            "storageAccounts": {
+              "count": 1,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Static",
+                "startingIPAddress": "10.0.1.5",
+                "subnetName": "web",
+                "backendPoolsNames": [
+                  "dmz-vm-lb-bep1"
+                ],
+                "inboundNatRulesNames": [
+                  "dmz-vm-lb-ibnr1"
+                ]
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [
+              {
+                "name": "apache-config-ext",
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/multi-vm/extensions/linux/install-apache.sh"
+                  ],
+                  "commandToExecute": "sh install-apache.sh"
+                },
+                "protectedSettings": {}
+              }
+            ],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "dmz-lb-fe-config1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.1.100",
+                    "subnetName": "web"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "dmz-vm-lb-bep1",
+                  "frontendIPConfigurationName": "dmz-lb-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "dmz-vm-lb-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": [
+                {
+                  "name": "dmz-vm-lb-ibnr1",
+                  "namePrefix": "ssh",
+                  "frontendIPConfigurationName": "dmz-lb-fe-config1",
+                  "startingFrontendPort": 50000,
+                  "backendPort": 22,
+                  "natRuleType": "All",
+                  "protocol": "Tcp",
+                  "nicIndex": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "biz",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "biz",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "dmz-vnet"
+            },
+            "storageAccounts": {
+              "count": 1,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "dnsServers": [],
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "biz",
+                "backendPoolsNames": [
+                  "dmz-biz-bep1"
+                ],
+                "inboundNatRulesNames": []
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "dmz-biz-feconfig1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.2.250",
+                    "subnetName": "biz"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "dmz-biz-bep1",
+                  "frontendIPConfigurationName": "dmz-biz-feconfig1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "dmz-biz-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": [
+                {
+                  "name": "dmz-biz-ibnr1",
+                  "namePrefix": "ssh",
+                  "frontendIPConfigurationName": "dmz-biz-feconfig1",
+                  "startingFrontendPort": 50000,
+                  "backendPort": 22,
+                  "natRuleType": "All",
+                  "protocol": "Tcp",
+                  "nicIndex": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "data",
+            "size": "Standard_DS1_v2",
+            "computerNamePrefix": "data",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "dmz-vnet"
+            },
+            "storageAccounts": {
+              "count": 1,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "dnsServers": [],
+                "isPrimary": true,
+                "isPublic": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "data",
+                "backendPoolsNames": [
+                  "dmz-data-bep1"
+                ],
+                "inboundNatRulesNames": []
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1,
+              "properties": {
+                "diskSizeGB": 128,
+                "caching": "None",
+                "createOption": "empty"
+              }
+            },
+            "osDisk": {
+              "caching": "ReadWrite"
+            },
+            "extensions": [],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "dmz-data-feconfig1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.3.100",
+                    "subnetName": "data"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "dmz-data-bep1",
+                  "frontendIPConfigurationName": "dmz-data-feconfig1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "dmz-data-bep1",
+                  "nicIndex": 0
+                }
+              ],
+              "inboundNatRules": [
+                {
+                  "name": "dmz-data-ibnr1",
+                  "namePrefix": "ssh",
+                  "frontendIPConfigurationName": "dmz-data-feconfig1",
+                  "startingFrontendPort": 50000,
+                  "backendPort": 22,
+                  "natRuleType": "All",
+                  "protocol": "Tcp",
+                  "nicIndex": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "jb",
+            "computerNamePrefix": "jb",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "dmz-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": true,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Dynamic",
+                "subnetName": "mgmt"
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1
+            }
+          }
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "nva",
+            "computerNamePrefix": "nva",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "dmz-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Static",
+                "startingIPAddress": "10.0.0.70",
+                "subnetName": "dmz-in",
+                "enableIPForwarding": true,
+                "domainNameLabelPrefix": "",
+                "backendPoolsNames": [
+                  "dmz-nva-bep1"
+                ]
+              },
+              {
+                "isPublic": false,
+                "isPrimary": false,
+                "privateIPAllocationMethod": "Dynamic",
+                "subnetName": "dmz-out",
+                "enableIPForwarding": true,
+                "domainNameLabelPrefix": ""
+              }
+            ],
+            "osType": "linux",
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "14.04.5-LTS",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 0
+            },
+            "extensions": [
+              {
+                "name": "enable-iptables-routes",
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/linux/enable-iptables-routes/enable-iptables-routes.sh"
+                  ],
+                  "commandToExecute": "bash enable-iptables-routes.sh internal 10.0.1.100"
+                },
+                "protectedSettings": {}
+              }
+            ],
+            "loadBalancerSettings": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "dmz-nva-fe-config1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.0.80",
+                    "subnetName": "dmz-in"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "dmz-nva-bep1",
+                  "frontendIPConfigurationName": "dmz-nva-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                },
+                {
+                  "name": "lbr2",
+                  "frontendPort": 443,
+                  "backendPort": 443,
+                  "protocol": "Tcp",
+                  "backendPoolName": "dmz-nva-bep1",
+                  "frontendIPConfigurationName": "dmz-nva-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "dmz-nva-bep1",
+                  "nicIndex": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+         "type": "VirtualNetworkGateway",
+         "settings": {
+           "name": "vpn-gateway1",
+           "gatewayType": "Vpn",
+           "vpnType": "RouteBased",
+           "sku": "Basic",
+           "isPublic": true,
+           "virtualNetwork": {
+             "name": "dmz-vnet"
+           }
+         }
+        },
+        {
+          "type": "Connection",
+          "settings":{
+            "name": "secure-vnet-vpn-connection",
+            "routingWeight": 0,
+            "connectionType": "Vnet2Vnet",
+            "vpnType": "RouteBased",
+            "sharedKey": "123@sharedK5y",
+            "virtualNetworkGateway1": {
+              "name": "onprem-vpn-gateway1"
+            },
+            "virtualNetworkGateway2": {
+              "name": "vpn-gateway1"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

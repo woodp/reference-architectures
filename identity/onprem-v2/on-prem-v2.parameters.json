@@ -1,0 +1,276 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "onpremise-vnet",
+              "addressPrefixes": [
+                "192.168.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "192.168.1.128/25"
+                },
+                {
+                  "name": "adds",
+                  "addressPrefix": "192.168.0.0/24"
+                },
+                {
+                  "name": "GatewaySubnet",
+                  "addressPrefix": "192.168.255.224/27"
+                }
+              ],
+              "dnsServers": [
+                "192.168.0.4",
+                "192.168.0.5",
+                "168.63.129.16"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "computerNamePrefix": "ad",
+            "namePrefix": "ad",
+            "size": "Standard_DS3_v2",
+            "adminUsername": "testadminuser",
+            "adminPassword": "test$!Passw0rd111",
+            "virtualNetwork": {
+              "name": "onpremise-vnet"
+            },
+            "storageAccounts": {
+              "count": 2,
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "isPrimary": true,
+                "privateIPAllocationMethod": "Static",
+                "subnetName": "adds",
+                "startingIPAddress": "192.168.0.4"
+              }
+            ],
+            "osType": "windows",
+            "imageReference": {
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "2012-R2-Datacenter",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1
+            }
+          }
+        },
+        {
+          "type": "VirtualMachineExtension",
+          "settings": [
+            {
+              "vms": [
+                "ad-vm1"
+              ],
+              "extensions": [
+                {
+                  "name": "install-adds",
+                  "publisher": "Microsoft.Compute",
+                  "type": "CustomScriptExtension",
+                  "typeHandlerVersion": "1.8",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "fileUris": [
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/identity/adds-extend-domain/extensions/adds-forest.ps1"
+                    ]
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File adds-forest.ps1 -DomainName contoso.com -DomainNetbiosName contoso -SafeModePassword Saf3M0de@PW"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "jb",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "adminuser",
+            "adminPassword": "p855W0r&",
+            "virtualNetwork": {
+              "name": "onpremise-vnet"
+            },
+            "storageAccounts": {
+              "managed": true
+            },
+            "diagnosticStorageAccounts": {
+              "count": 1,
+              "encryptBlobStorage": true,
+              "encryptFileStorage": true
+            },
+            "nics": [
+              {
+                "isPublic": true,
+                "publicIPAllocationMethod": "Dynamic",
+                "subnetName": "mgmt"
+              }
+            ],
+            "osType": "windows",
+            "dataDisks": {
+              "count": 1
+            },
+            "extensions": [
+              {
+                "name": "IaaSAntimalware",
+                "publisher": "Microsoft.Azure.Security",
+                "type": "IaaSAntimalware",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "AntimalwareEnabled": true,
+                  "RealtimeProtectionEnabled": "true",
+                  "ScheduledScanSettings": {
+                    "isEnabled": "false",
+                    "day": "7",
+                    "time": "120",
+                    "scanType": "Quick"
+                  },
+                  "Exclusions": {
+                    "Extensions": "",
+                    "Paths": "",
+                    "Processes": ""
+                  }
+                },
+                "protectedSettings": {}
+              }
+            ]
+          }
+        },
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "onpremise-vnet",
+              "addressPrefixes": [
+                "192.168.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "192.168.1.128/25"
+                },
+                {
+                  "name": "adds",
+                  "addressPrefix": "192.168.0.0/24"
+                },
+                {
+                  "name": "GatewaySubnet",
+                  "addressPrefix": "192.168.255.224/27"
+                }
+              ],
+              "dnsServers": [
+                "192.168.0.4",
+                "192.168.0.5"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualMachineExtension",
+          "settings": [
+            {
+              "vms": [
+                "ad-vm2"
+              ],
+              "extensions": [
+                {
+                  "name": "join-ad-domain",
+                  "publisher": "Microsoft.Compute",
+                  "type": "JsonADDomainExtension",
+                  "typeHandlerVersion": "1.3",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "Name": "contoso.com",
+                    "OUPath": "",
+                    "User": "contoso.com\\testadminuser",
+                    "Restart": true,
+                    "Options": 3
+                  },
+                  "protectedSettings": {
+                    "Password": "test$!Passw0rd111"
+                  }
+                },
+                {
+                  "name": "install-adds",
+                  "publisher": "Microsoft.Compute",
+                  "type": "CustomScriptExtension",
+                  "typeHandlerVersion": "1.8",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "fileUris": [
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/identity/adds-extend-domain/extensions/adds.ps1"
+                    ]
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File adds.ps1 -DomainName contoso.com -DomainNetbiosName contoso -SafeModePassword Saf3M0de@PW -AdminUser testadminuser -AdminPassword test$!Passw0rd111 -SiteName Default-First-Site-Name"
+                  }
+                }
+              ]
+            },
+            {
+              "vms": [
+                "jb-vm1"
+              ],
+              "extensions": [
+                {
+                  "name": "join-ad-domain",
+                  "publisher": "Microsoft.Compute",
+                  "type": "JsonADDomainExtension",
+                  "typeHandlerVersion": "1.3",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "Name": "contoso.com",
+                    "OUPath": "",
+                    "User": "contoso.com\\testadminuser",
+                    "Restart": true,
+                    "Options": 3
+                  },
+                  "protectedSettings": {
+                    "Password": "test$!Passw0rd111"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualNetworkGateway",
+          "settings": {
+            "name": "onprem-vpn-gateway1",
+            "gatewayType": "Vpn",
+            "vpnType": "RouteBased",
+            "sku": "Basic",
+            "isPublic": true,
+            "virtualNetwork": {
+              "name": "onpremise-vnet"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
