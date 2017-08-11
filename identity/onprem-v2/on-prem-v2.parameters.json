@@ -230,7 +230,12 @@
                   }
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "type":"VirtualMachineExtension",
+          "settings": [
             {
               "vms": [
                 "jb-vm1"
@@ -263,7 +268,7 @@
             "name": "onprem-vpn-gateway1",
             "gatewayType": "Vpn",
             "vpnType": "RouteBased",
-            "sku": "Basic",
+            "sku": "VpnGw1",
             "isPublic": true,
             "virtualNetwork": {
               "name": "onpremise-vnet"

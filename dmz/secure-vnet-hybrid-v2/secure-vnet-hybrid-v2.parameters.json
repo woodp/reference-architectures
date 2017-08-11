@@ -543,7 +543,7 @@
            "name": "vpn-gateway1",
            "gatewayType": "Vpn",
            "vpnType": "RouteBased",
-           "sku": "Basic",
+           "sku": "VpnGw1",
            "isPublic": true,
            "virtualNetwork": {
              "name": "dmz-vnet"
@@ -554,15 +554,33 @@
           "type": "Connection",
           "settings":{
             "name": "secure-vnet-vpn-connection",
-            "routingWeight": 0,
+            "routingWeight": 1,
             "connectionType": "Vnet2Vnet",
             "vpnType": "RouteBased",
             "sharedKey": "123@sharedK5y",
             "virtualNetworkGateway1": {
+              "resourceGroupName": "testRG-onprem-v2",
               "name": "onprem-vpn-gateway1"
             },
             "virtualNetworkGateway2": {
               "name": "vpn-gateway1"
+            }
+          }
+        },
+        {
+          "type": "Connection",
+          "settings":{
+            "name": "onprem-connection",
+            "routingWeight": 1,
+            "connectionType": "Vnet2Vnet",
+            "vpnType": "RouteBased",
+            "sharedKey": "123@sharedK5y",
+            "virtualNetworkGateway1": {
+              "name":"vpn-gateway1"
+            },
+            "virtualNetworkGateway2": {
+              "resourceGroupName": "testRG-onprem-v2",
+              "name": "onprem-vpn-gateway1"
             }
           }
         }
