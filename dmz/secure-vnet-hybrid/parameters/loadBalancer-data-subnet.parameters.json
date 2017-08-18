@@ -43,7 +43,7 @@
         "extensions": [
           {
             "name": "apache-config-ext",
-            "settingsConfigMapperUri": "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
+            "settingsConfigMapperUri": "https://raw.githubusercontent.com/azure/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
             "publisher": "Microsoft.OSTCExtensions",
             "type": "CustomScriptForLinux",
             "typeHandlerVersion": "1.5",

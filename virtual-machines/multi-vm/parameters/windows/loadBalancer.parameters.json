@@ -44,7 +44,7 @@
         "extensions": [
           {
             "name": "iis-config-ext",
-            "settingsConfigMapperUri": "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
+            "settingsConfigMapperUri": "https://raw.githubusercontent.com/azure/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
             "publisher": "Microsoft.Powershell",
             "type": "DSC",
             "typeHandlerVersion": "2.20",

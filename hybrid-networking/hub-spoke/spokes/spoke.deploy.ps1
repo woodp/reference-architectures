@@ -14,7 +14,7 @@ Param(
 $AzureSubscription = Get-AzureRmSubscription -SubscriptionId $SUBSCRIPTION_ID
 Select-AzureRmSubscription -SubscriptionId $SUBSCRIPTION_ID
 
-$BUILDINGBLOCKS_ROOT_URI = "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/"
+$BUILDINGBLOCKS_ROOT_URI = "https://raw.githubusercontent.com/azure/template-building-blocks/v1.0.0/"
 $SCRIPT_DIR = $PSScriptRoot
 
 "`n"

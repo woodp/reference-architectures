@@ -13,7 +13,7 @@
               "type": "DSC",
               "typeHandlerVersion": "2.19",
               "autoUpgradeMinorVersion": false,
-            "settingsConfigMapperUri": "https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
+            "settingsConfigMapperUri": "https://raw.githubusercontent.com/azure/template-building-blocks/v1.0.0/templates/resources/Microsoft.Compute/virtualMachines/extensions/vm-extension-passthrough-settings-mapper.json",
               "settingsConfig": {
                 "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sharepoint/sharepoint-2016/extensions/CreateFailoverCluster.ps1.zip",
                 "configurationFunction": "CreateFailoverCluster.ps1\\CreateFailoverCluster",

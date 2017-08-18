@@ -34,7 +34,7 @@ Overview
  (ARM) templates deploy an environment that aligns to the National Cyber Security Centre (NCSC) [Cloud Security Principles](https://www.ncsc.gov.uk/guidance/implementing-cloud-security-principles) and  the Center for Internet Security (CIS) [Critical Security
  Controls](https://www.cisecurity.org/critical-controls.cfm).
 
- The NCSC recommend their Cloud Security Principles be used by customers to evaluate the security properties of the service, and to help understand the division of responsibility between the customer and supplier. We’ve provided information against each of these principles to help you understand the split of responsibilities.
+ The NCSC recommend their Cloud Security Principles be used by customers to evaluate the security properties of the service, and to help understand the division of responsibility between the customer and supplier. Weï¿½ve provided information against each of these principles to help you understand the split of responsibilities.
 
  This architecture and corresponding ARM templates are underpinned by the Microsoft whitepaper [Azure Blueprint for the UK Government](https://aka.ms/azureblueprintukg-cloud). This paper catalogue how Azure services align with the fourteen
  cloud security principles set forth in the CESG/NCSC publication [Implementing the Cloud Security Principles](https://www.ncsc.gov.uk/guidance/implementing-cloud-security-principles)"
@@ -114,7 +114,7 @@ Guidance and Recommendations
 > the activity log, metrics, and diagnostic logs of all your Azure
 > resources. Azure Monitor can be configured to visualize, query, route,
 > archive, and act on the metrics and logs coming from resources in
-> Azure. It is recommended that Resource Based Access Control is used to secure the audit trail to ensure that users don’t have the ability to modify the logs.
+> Azure. It is recommended that Resource Based Access Control is used to secure the audit trail to ensure that users donï¿½t have the ability to modify the logs.
 >
 > **Activity Logs**: Configure [Azure Activity
 > Logs](https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-overview-activity-logs)
@@ -177,7 +177,7 @@ Guidance and Recommendations
 > (NSG) are recommended for each subnet to provide a second level of
 > protection against inbound traffic bypassing an incorrectly configured
 > or disabled gateway. Example - [ARM Template for deploying an
-> NSG](https://github.com/mspnp/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/networkSecurityGroups).
+> NSG](https://github.com/azure/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/networkSecurityGroups).
 >
 > **Securing public endpoints:** The internet gateway exposes
 > application services to users through the internet. Traffic accessing
@@ -194,7 +194,7 @@ Guidance and Recommendations
 > the on-premises datacentre through IPSEC VPN using the Azure VPN
 > Gateway. Customers should ensure that they are using an appropriate
 > VPN Gateway to connect to Azure. Example [VPN Gateway ARM
-> Template](https://github.com/mspnp/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/vpn-gateway-vpn-connection)**.**
+> Template](https://github.com/azure/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/vpn-gateway-vpn-connection)**.**
 > Customers running large-scale, mission critical workloads with big data requirements may wish to consider a hybrid network architecture using
 > [ExpressRoute](https://docs.microsoft.com/en-gb/azure/guidance/guidance-hybrid-network-expressroute)
 > to ensure private network connectivity to Microsoft cloud services
@@ -359,7 +359,7 @@ Portal.
 
 > Rather than develop the templates for this environment from scratch, some templates used are drawn from the [Microsoft Patterns and
 > Practices GitHub Repository](https://github.com/mspnp) [Template
-> Building Blocks](https://github.com/mspnp/template-building-blocks)
+> Building Blocks](https://github.com/azure/template-building-blocks)
 > and orchestrated through a an a master ARM template or PowerShell
 > script. Other Azure architectural best practices and guidance can be
 > found in [Azure Reference

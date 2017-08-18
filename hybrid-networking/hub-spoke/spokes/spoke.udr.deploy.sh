@@ -24,7 +24,7 @@ do
   shift
 done
 
-BUILDINGBLOCKS_ROOT_URI="https://raw.githubusercontent.com/mspnp/template-building-blocks/v1.0.0/"
+BUILDINGBLOCKS_ROOT_URI="https://raw.githubusercontent.com/azure/template-building-blocks/v1.0.0/"
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 echo
