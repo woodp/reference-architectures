@@ -22,50 +22,71 @@
           ]
         },
         {
+          "type": "NetworkSecurityGroup",
+          "settings": [
+            {
+              "name": "ra-single-vm-nsg",
+              "securityRules": [
+                {
+                  "name": "SSH"
+                }
+              ],
+              "virtualNetworks": [
+                {
+                  "name": "ra-single-vm-vnet",
+                  "subnets": [
+                    "web"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
           "type": "VirtualMachine",
           "settings": {
             "vmCount": 1,
-            "namePrefix": "ra-sngl",
+            "namePrefix": "ra-single",
+            "computerNamePrefix": "web",
             "size": "Standard_DS1_v2",
             "adminUsername": "testadminuser",
             "adminPassword": "test$!Passw0rd111",
-            "virtualNetwork": { "name": "ra-single-vm-vnet" },
-            "storageAccounts": {
-                "managed": true
-            },
-            "diagnosticStorageAccounts": {
-                "count": 1,
-                "encryptBlobStorage": true,
-                "encryptFileStorage": true
+            "virtualNetwork": {
+              "name": "ra-single-vm-vnet"
             },
             "nics": [
-                {
-                    "isPublic": true    ,
-                    "privateIPAllocationMethod": "Dynamic", 
-                    "subnetName": "web"
-                }
+              {
+                "isPublic": true,
+                "subnetName": "web"
+              }
             ],
             "osType": "linux",
-            "dataDisks": { 
-                "count": 1
+            "dataDisks": {
+              "count": 2
             }
           }
         },
         {
-            "type":"NetworkSecurityGroup",
-            "settings": [
-              {
-                  "name": "ra-single-vm-nsg",                            "securityRules": [
-                    { "name": "SSH"}
-                  ],
-                  "virtualNetworks": [
-                    {
-                        "name": "ra-single-vm-vnet",
-                        "subnets": [ "web" ]
-                    }
-                  ]
-              }
-            ]
+          "type": "VirtualMachineExtensions",
+          "settings":[
+            {
+              "vms": ["ra-single-vm1"],
+              "extensions": [
+                {
+                  "name": "ra-single-vm1-ext",
+                  "publisher": "Microsoft.Azure.Extensions",
+                  "type": "CustomScript",
+                  "settings": {
+                    "fileUris": [
+                      "",
+                      "",
+                      ""
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }
