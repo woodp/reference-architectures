@@ -8,7 +8,7 @@
           "type": "VirtualNetwork",
           "settings": [
             {
-              "name": "ra-single-vm-vnet",
+              "name": "ra-single-linux-vm-vnet",
               "addressPrefixes": [
                 "10.0.0.0/16"
               ],
@@ -25,15 +25,18 @@
           "type": "NetworkSecurityGroup",
           "settings": [
             {
-              "name": "ra-single-vm-nsg",
+              "name": "ra-single-linux-vm-nsg",
               "securityRules": [
                 {
                   "name": "SSH"
+                },
+                {
+                  "name": "HTTP"
                 }
               ],
               "virtualNetworks": [
                 {
-                  "name": "ra-single-vm-vnet",
+                  "name": "ra-single-linux-vm-vnet",
                   "subnets": [
                     "web"
                   ]
@@ -46,13 +49,13 @@
           "type": "VirtualMachine",
           "settings": {
             "vmCount": 1,
-            "namePrefix": "ra-single",
+            "namePrefix": "ra-single-linux",
             "computerNamePrefix": "web",
             "size": "Standard_DS1_v2",
             "adminUsername": "testadminuser",
-            "adminPassword": "test$!Passw0rd111",
+            "sshPublicKey":"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCmEd95vOnSwbITChFUPoOMpHOauqG97AK8b8GXUf/wX0aBQEh4LSiWSuqhHsM3csTdi7XBG3faLHxlmevwUq9A8VHIf9SKP26z7bdu7hvybm5ARsyZtWVwKEObqwLHKP1F3Lpgp9ucfG6JLtV4BhskdgdxM5i7c9gwslZS0JYQgPs2WcBwQTSoO6No2PXRwMp0c978lg4K0qVkgj3NNHCOepkj9Lw3uKGscluOeai6zQ90IRhd7YuyabtSo+oqNev38wthkcZN0zyfGTpHWPZ8Z9xoU41VXv4Y4NLWbRxBWn0TgdbmCpYk9VC4vyOX26TxRiJpG4cwIyQspiBmoTVR telmos@telmossbook",
             "virtualNetwork": {
-              "name": "ra-single-vm-vnet"
+              "name": "ra-single-linux-vm-vnet"
             },
             "nics": [
               {
@@ -67,21 +70,28 @@
           }
         },
         {
-          "type": "VirtualMachineExtensions",
-          "settings":[
+          "type": "VirtualMachineExtension",
+          "settings": [
             {
-              "vms": ["ra-single-vm1"],
+              "vms": [
+                "ra-single-linux-vm1"
+              ],
               "extensions": [
                 {
-                  "name": "ra-single-vm1-ext",
+                  "name": "ra-single-linux-vm1-ext",
                   "publisher": "Microsoft.Azure.Extensions",
                   "type": "CustomScript",
+                  "typeHandlerVersion": "2.0",
+                  "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
-                      "",
-                      "",
-                      ""
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/virtual-machines/scripts/linux/format-2-data-disks.sh",
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/virtual-machines/scripts/linux/install-apache.sh",
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/virtual-machines/single-vm/extensions/linux/single-vm.sh"
                     ]
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "sh single-vm.sh"
                   }
                 }
               ]

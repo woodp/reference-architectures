@@ -8,7 +8,7 @@ apt-get -y update
 apt-get -y install apache2 
 
 # write some HTML
-echo \<center\>\<h1\>AzureCAT - patterns & practices - Reference architecture\</h1\>\<br/\>\</center\> > /var/www/html/demo.html
+echo \<center\>\<h1\>AzureCAT - patterns \& practices - Reference architecture\</h1\>\<br/\>\</center\> > /var/www/html/demo.html
 
 # restart Apache
 apachectl restart
