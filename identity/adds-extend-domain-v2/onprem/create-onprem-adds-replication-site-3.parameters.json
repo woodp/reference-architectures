@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualMachineExtension",
+          "settings":[
+            {
+              "vms": [
+                "ad-vm1"
+              ],
+              "extensions": [
+                {
+                  "name": "install-adds",
+                  "publisher": "Microsoft.Compute",
+                  "type": "CustomScriptExtension",
+                  "typeHandlerVersion": "1.8",
+                  "autoUpgradeMinorVersion": false,
+                  "settings": {
+                    "fileUris": [
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/identity/adds-extend-domain/extensions/adds-replication-site.ps1"
+                    ]
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -Command adds-replication-site.ps1 -DomainName contoso.com -AdminUser testadminuser -AdminPassword test$!Passw0rd111 -SiteName Azure-Vnet-Site -OnpremSiteName Default-First-Site-Name -Cidr 10.0.0.0/16 -ReplicationFrequency 10"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
