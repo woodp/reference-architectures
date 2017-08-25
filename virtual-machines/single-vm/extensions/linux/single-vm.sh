@@ -3,4 +3,5 @@
 #
 #!/bin/bash
 sh install-apache.sh
-sh format-2-data-disks.sh
+sh format-disk.sh sdc 1
+sh format-disk.sh sdd 2
