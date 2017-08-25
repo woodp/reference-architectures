@@ -85,7 +85,7 @@
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
-                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/linux/format-2-data-disks.sh",
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/linux/format-disk.sh",
                       "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/linux/install-apache.sh",
                       "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/virtual-machines/single-vm/extensions/linux/single-vm.sh"
                     ]
