@@ -15,4 +15,4 @@ echo w
 )|fdisk /dev/$1
 mkfs -t ext3 /dev/$1$2
 mkdir /data$2
-mount /dev/$1$2 /data$2
+mount /dev/$11 /data$2
