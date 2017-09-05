@@ -13,6 +13,6 @@ echo
 echo
 echo w
 )|fdisk /dev/$1
-mkfs -t ext3 /dev/$1$2
+mkfs -t ext3 /dev/$11
 mkdir /data$2
 mount /dev/$11 /data$2

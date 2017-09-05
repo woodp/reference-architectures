@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/master/schemas/buildingBlocks.json",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "buildingBlocks": {
@@ -53,9 +53,9 @@
             "computerNamePrefix": "web",
             "size": "Standard_DS1_v2",
             "adminUsername": "testadminuser",
-            "adminPassword": "test$!Passw0rd111",
+            "adminPassword": "",
             "virtualNetwork": {
-              "name": "ra-single-windows-vnet"
+              "name": "ra-single-windows-vm-vnet"
             },
             "nics": [
               {
@@ -84,8 +84,8 @@
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
-                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/windows/format-disk.ps1",
-                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/virtual-machines/single-vm/extensions/windows/format-disks.ps1"
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/format-disk.ps1",
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/single-vm/extensions/windows/format-disks.ps1"
                     ]
                   },
                   "protectedSettings": {
@@ -99,7 +99,7 @@
                   "typeHandlerVersion": "2.1",
                   "autoUpgradeMinorVersion": true,
                   "settings": {
-                    "ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/windows/iisaspnet.ps1.zip",
+                    "ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/iisaspnet.ps1.zip",
                     "configurationFunction": "iisaspnet.ps1\\iisaspnet"
                   },
                   "protectedSettings": {}

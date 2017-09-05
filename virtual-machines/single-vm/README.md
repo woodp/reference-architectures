@@ -8,191 +8,233 @@ You can read the [guidance on deploying a single VM to Azure][guidance] document
 
 The reference architecture above is deployed using different building blocks for virtual network, network security group, and virtual machine.
 
-You can deploy these template building blocks by using:
-- [a template file][solution-template]
-- [a PowerShell script][solution-psscript]
-- [a bash script][solution-shscript]
+You can deploy these template building blocks by using the [Azure Building Blocks][azbbv2].
 
-Each building block consumes a parameter file that you can download and modify for your own environment. The parameters used in this deployment scenario are as follows.
+Each building block consumes a set of parameters provided in a single file that you can download and modify for your own environment. The parameters used in this deployment scenario are as follows.
+
+Download the parameter file for a [Windows VM][windows-parameters] or [Linux VM][linux-parameters] and make any necessary changes.
+
+Notice that the parameter file contains a different building block for:
+- virtual network
+- network security group
+- virtual machine
+- virtual machine extensions
 
 ### Virtual network
 
-Download the [virtualNetwork.parameters.json][vnet-parameters] and make any necessary changes. You can learn about each parameter used in this file in the [vnet-n-subnet][bb-vnet] building block **readme** page. The parameter file used in this scenario creates a vnet with a single subnet, using 10.0.1.0/24 as its CIDR as follows.
+Before editing the values in the virtual network building block, make sure you understand what values are expected for its [parameters][bb-vnet]. The parameters below are used to create a single virtual network named `ra-single-linux-vm-vnet` with an address prefix of `10.0.0.0/16` containing a single subnet named `web` with an address prefix of `10.0.1.0/24`.
 
-	  "parameters": {
-	    "virtualNetworkSettings": {
-	      "value": {
-	        "name": "ra-single-vm-vnet",
-	        "addressPrefixes": [
-	          "10.0.0.0/16"
-	        ],
-	        "subnets": [
-	          {
-	            "name": "web",
-	            "addressPrefix": "10.0.1.0/24"
-	          }
-	        ],
-	        "dnsServers": [ ]
-	      }
-	    }
-	  }
+```json
+	{
+		"type": "VirtualNetwork",
+		"settings": [
+			{
+				"name": "ra-single-linux-vm-vnet",
+				"addressPrefixes": [
+					"10.0.0.0/16"
+				],
+				"subnets": [
+					{
+						"name": "web",
+						"addressPrefix": "10.0.1.0/24"
+					}
+				]
+			}
+		]
+	},
+```
 
 ### Network security group
 
-Download the [networkSecurityGroup.parameters.json][nsg-parameters] and make any necessary changes. You can learn about each parameter used in this file in the [networkSecurityGroups][bb-nsg] building block **readme** page. The parameter file used in this scenario creates an NSG with a single rule, allowing SSH access, linked to the **web** subnet as follows.
+Before editing the values in the network security group building block, make sure you understand what values are expected for its [parameters][bb-nsg]. The parameters below are used to create an NSG named `ra-single-linux-vm-nsg` that allows SSH and HTTP traffic to the default ports for those services in the `web` subnet in a virtual network named `ra-single-linux-vm-vnet`.
 
-	  "parameters": {
-	    "virtualNetworkSettings": {
-	      "value": {
-	        "name": "ra-single-vm-vnet",
-	        "resourceGroup": "ra-single-vm-rg"
-	      }
-	    },
-	    "networkSecurityGroupsSettings": {
-	      "value": [
-	        {
-	          "name": "ra-single-vm-nsg",
-	          "subnets": [
-	            "web"
-	          ],
-	          "networkInterfaces": [
-	          ],
-	          "securityRules": [
-	            {
-	              "name": "default-allow-ssh",
-	              "direction": "Inbound",
-	              "priority": 1000,
-	              "sourceAddressPrefix": "*",
-	              "destinationAddressPrefix": "*",
-	              "sourcePortRange": "*",
-	              "destinationPortRange": "22",
-	              "access": "Allow",
-	              "protocol": "Tcp"
-	            }
-	          ]
-	        }
-	      ]
-	    }
-	  }
+```json
+	{
+		"type": "NetworkSecurityGroup",
+		"settings": [
+			{
+				"name": "ra-single-linux-vm-nsg",
+				"securityRules": [
+					{
+						"name": "SSH"
+					},
+					{
+						"name": "HTTP"
+					}
+				],
+				"virtualNetworks": [
+					{
+						"name": "ra-single-linux-vm-vnet",
+						"subnets": [
+							"web"
+						]
+					}
+				]
+			}
+		]
+	},
+```
 
 ### Virtual machine
 
-Download the [virtualMachineParameters.json][vm-parameters] and make any necessary changes. You can learn about each parameter used in this file in the [multi-vm-n-nic-m-storage][bb-vm] building block **readme** page. The parameter file used in this scenario creates a single Linux VM with a NIC, a public IP address, and two data disks as follows.
+Before editing the values in the virtual machine building block, make sure you understand what values are expected for its [parameters][bb-vm]. You need to at least substitute the `yyy` value for the `sshPublicKey` parameter with your own SSH public key used to access your Linux VM. If you are using a Windows VM, substitute the `sshPublicKey` parameter with `adminPassword` and specify your own password value.
 
-	  "parameters": {
-	    "virtualMachinesSettings": {
-	      "value": {
-	        "namePrefix": "ra-single-vm",
-	        "computerNamePrefix": "cn",
-	        "size": "Standard_DS1_v2",
-	        "osType": "linux",
-	        "adminUsername": "",
-	        "adminPassword": "",
-	        "osAuthenticationType": "password",
-	        "nics": [
-	          {
-	            "isPublic": "true",
-	            "subnetName": "subnet1",
-	            "privateIPAllocationMethod": "dynamic",
-	            "publicIPAllocationMethod": "dynamic",
-	            "enableIPForwarding": false,
-	            "dnsServers": [
-	            ],
-	            "isPrimary": "true"
-	          }
-	        ],
-	        "imageReference": {
-	          "publisher": "Canonical",
-	          "offer": "UbuntuServer",
-	          "sku": "14.04.5-LTS",
-	          "version": "latest"
-	        },
-	        "dataDisks": {
-	          "count": 2,
-	          "properties": {
-	            "diskSizeGB": 128,
-	            "caching": "None",
-	            "createOption": "Empty"
-	          }
-	        },
-	        "osDisk": {
-	          "caching": "ReadWrite"
-	        },
-	        "extensions": [ ],
-	        "availabilitySet": {
-	          "useExistingAvailabilitySet": "No",
-	          "name": ""
-	        }
-	      }
-	    },
-	    "virtualNetworkSettings": {
-	      "value": {
-	        "name": "ra-single-vm-vnet",
-	        "resourceGroup": "ra-single-vm-rg"
-	      }
-	    },
-	    "buildingBlockSettings": {
-	      "value": {
-	        "storageAccountsCount": 1,
-	        "vmCount": 1,
-	        "vmStartIndex": 0
-	      }
-	    }
-	  }
+The parameters below create a VM named `ra-single-linux-vm1` in the `web` subnet running the latest version of Ubuntu with 2 data disks. It uses several defaults from the Azure Building Blocks to:
+- Enable managed disks
+- Enable boot diagnostics
+- Create a public IP address
+
+```json
+	{
+		"type": "VirtualMachine",
+		"settings": {
+			"vmCount": 1,
+			"namePrefix": "ra-single-linux",
+			"computerNamePrefix": "web",
+			"size": "Standard_DS1_v2",
+			"adminUsername": "testadminuser",
+			"sshPublicKey":"yyy",
+			"virtualNetwork": {
+				"name": "ra-single-linux-vm-vnet"
+			},
+			"nics": [
+				{
+					"subnetName": "web"
+				}
+			],
+			"osType": "linux",
+			"dataDisks": {
+				"count": 2
+			}
+		}
+	},
+```
+
+### Virtual machine extensions
+
+Before editing the values in the virtual machine extension building block, make sure you understand what values are expected for its [parameters][bb-extensions].
+
+The parameters below are used to download three different bash scripts to a Linux VM, then run one of those scripts. The script being executed simply makes calls to the other scripts to:
+
+- install apache
+- format two data disks
+
+```json
+	{
+		"type": "VirtualMachineExtension",
+		"settings": [
+			{
+				"vms": [
+					"ra-single-linux-vm1"
+				],
+				"extensions": [
+					{
+						"name": "ra-single-linux-vm1-ext",
+						"publisher": "Microsoft.Azure.Extensions",
+						"type": "CustomScript",
+						"typeHandlerVersion": "2.0",
+						"autoUpgradeMinorVersion": true,
+						"settings": {
+							"fileUris": [
+								"https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/format-disk.sh",
+								"https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/install-apache.sh",
+								"https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/single-vm/extensions/linux/single-vm.sh"
+							]
+						},
+						"protectedSettings": {
+							"commandToExecute": "sh single-vm.sh"
+						}
+					}
+				]
+			}
+		]
+	}
+```
+
+The extension building block for a Windows VM is similar tot he Linux one, except that it uses two blocks - one to install IIS, and another one to format the data disks.
+
+```json
+	{
+		"type": "VirtualMachineExtension",
+		"settings": [
+			{
+				"vms": [
+					"ra-single-windows-vm1"
+				],
+				"extensions": [
+					{
+						"name": "format-disks",
+						"publisher": "Microsoft.Compute",
+						"type": "CustomScriptExtension",
+						"typeHandlerVersion": "1.8",
+						"autoUpgradeMinorVersion": true,
+						"settings": {
+							"fileUris": [
+								"https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/format-disk.ps1",
+								"https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/single-vm/extensions/windows/format-disks.ps1"
+							]
+						},
+						"protectedSettings": {
+							"commandToExecute": "powershell -ExecutionPolicy Unrestricted -File format-disks.ps1"
+						}
+					},
+					{
+						"name": "iis-config-ext",
+						"publisher": "Microsoft.Powershell",
+						"type": "DSC",
+						"typeHandlerVersion": "2.1",
+						"autoUpgradeMinorVersion": true,
+						"settings": {
+							"ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/mster/scripts/windows/iisaspnet.ps1.zip",
+							"configurationFunction": "iisaspnet.ps1\\iisaspnet"
+						},
+						"protectedSettings": {}
+					}                
+				]
+			}
+		]
+	}
+```
 
 ## Solution deployment
 
-You can deploy this reference architecture by using PowerShell, bash, or the Azure portal. To do so using your own parameter files, follow the instructions below.
+You can deploy this reference architecture by using the [Azure Building Blocks][azbbv2]. To deploy the reference archtiecture:
 
-1. Download all the files and folders in this folder.
+1. Follow the steps to install `azbb` in [Windows][install-azbb-windows] or in [Linux/MacOS][install-azbb-linux].
 
-2. In the **parameters** folder, customize each parameter file according to your needs.
+2. Download all the files and folders in this folder.
 
-3. Follow the steps in one of the following sections to deploy your solution.
+3. In the **parameters** folder, customize the parameter file according to your needs.
 
-### Portal
-1. Copy your parameters files to a URI that is publicly accessible.
+4. From a command prompt, login to your Azure account by using the `az login` command and following its prompt.
 
-2. Click the button below.
+```bash
+	az login
+```
 
-	<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Freference-architectures%2Fmaster%2Fguidance-compute-single-vm%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/></a>
+5. Run the `azbb` command as shown below.
 
-3. In the Azure portal, specify the **Subscription**, **Resource group**, and **Location** you want to use for your deployment.
+```bash
+	azbb -s <subscription_id> -g <resource_group_name> -l <location> -p <parameter_file> --deploy
+```
 
-	**Note** Make sure the **Resource group** name used matches the value used in your parameter files.
+	For instance, the command below can be used to deploy a Windows VM to a resource group named `ra-single-windows-vm-rg` in the `West US` Azure region:
 
-4. In the **Parameter Root Uri** textbox, type the URL where you copied your parameter files to. Remember, this must be a publicly accessible URL.
-
-5. Specify the **OS Type** (Windows or Linux).
-
-6. Click **I agree to the terms and conditions stated above** and then click **Purchase**.
-
-### PowerShell
-1. Open a PowerShell console and navigate to the folder where you downloaded the script and parameter files.
-
-2. Run the cmdlet below using your own subscription id, location, OS type, and resource group name.
-
-	.\Deploy-ReferenceArchitecture -SubscriptionId <id> -Location <location> -OSType <linux|windows> -ResourceGroupName <resource group>
-
-### Bash
-1. Open a bash console and navigate to the folder where you downloaded the script and parameter files.
-
-2. Run the command below using your own subscription id, location, OS type, and resource group name.
-
-	sh deploy-reference-architecture.sh -s <subscription id> -l <location> -o <linux|windows> -r <resource group>
+	```bash
+		azbb -s xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -g <resource_group_name> -l <location> -p <parameter_file> --deploy
+	```
 
 <!-- links -->
 [0]: ./diagram.png
 [bb]: https://github.com/mspnp/template-building-blocks
-[bb-vnet]: https://github.com/mspnp/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/vnet-n-subnet
-[bb-nsg]: https://github.com/mspnp/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/networkSecurityGroups
-[bb-vm]: https://github.com/mspnp/template-building-blocks/tree/v1.0.0/templates/buildingBlocks/multi-vm-n-nic-m-storage
+[bb-vnet]: https://github.com/mspnp/template-building-blocks/wiki/virtual-network
+[bb-nsg]: https://github.com/mspnp/template-building-blocks/wiki/network-security-group
+[bb-vm]: https://github.com/mspnp/template-building-blocks/wiki/Virtual-Machines
+[bb-extensions]: https://github.com/mspnp/template-building-blocks/wiki/virtual-machine-extensions
 [deployment]: #Solution-deployment
-[solution-shscript]: https://github.com/mspnp/reference-architectures/blob/master/virtual-machines/single-vm/deploy-reference-architecture.sh
-[solution-psscript]: https://github.com/mspnp/reference-architectures/blob/master/virtual-machines/single-vm/Deploy-ReferenceArchitecture.ps1
-[solution-template]: https://github.com/mspnp/reference-architectures/blob/master/virtual-machines/single-vm/azuredeploy.json
-[vnet-parameters]: https://github.com/mspnp/reference-architectures/tree/master/virtual-machines/single-vm/parameters/linux/virtualNetwork.parameters.json 
-[nsg-parameters]: https://github.com/mspnp/reference-architectures/blob/master/virtual-machines/single-vm/parameters/linux/networkSecurityGroups.parameters.json
-[vm-parameters]: https://github.com/mspnp/reference-architectures/tree/master/virtual-machines/single-vm/parameters/linux/virtualMachine.parameters.json
 [guidance]: https://docs.microsoft.com/azure/architecture/reference-architectures/virtual-machines-linux/single-vm
+[azbbv2]: https://github.com/mspnp/template-building-blocks/wiki
+[windows-parameters]: ./parameters/windows/single-vm-v2.json
+[linux-parameters]: ./parameters/linux/single-vm-v2.json
+[install-azbb-windows]: https://github.com/mspnp/template-building-blocks/wiki/Install-Azure-Building-Blocks-(Windows)
+[install-azbb-linux]: https://github.com/mspnp/template-building-blocks/wiki/Install-Azure-Building-Blocks-(Linux)

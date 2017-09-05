@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/master/schemas/buildingBlocks.json",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "buildingBlocks": {
@@ -53,7 +53,7 @@
             "computerNamePrefix": "web",
             "size": "Standard_DS1_v2",
             "adminUsername": "testadminuser",
-            "sshPublicKey":"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCmEd95vOnSwbITChFUPoOMpHOauqG97AK8b8GXUf/wX0aBQEh4LSiWSuqhHsM3csTdi7XBG3faLHxlmevwUq9A8VHIf9SKP26z7bdu7hvybm5ARsyZtWVwKEObqwLHKP1F3Lpgp9ucfG6JLtV4BhskdgdxM5i7c9gwslZS0JYQgPs2WcBwQTSoO6No2PXRwMp0c978lg4K0qVkgj3NNHCOepkj9Lw3uKGscluOeai6zQ90IRhd7YuyabtSo+oqNev38wthkcZN0zyfGTpHWPZ8Z9xoU41VXv4Y4NLWbRxBWn0TgdbmCpYk9VC4vyOX26TxRiJpG4cwIyQspiBmoTVR telmos@telmossbook",
+            "sshPublicKey":"yyy",
             "virtualNetwork": {
               "name": "ra-single-linux-vm-vnet"
             },
@@ -85,9 +85,9 @@
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
-                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/linux/format-disk.sh",
-                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/scripts/linux/install-apache.sh",
-                      "https://raw.githubusercontent.com/mspnp/reference-architectures/peter/azbb/virtual-machines/single-vm/extensions/linux/single-vm.sh"
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/format-disk.sh",
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/install-apache.sh",
+                      "https://raw.githubusercontent.com/mspnp/reference-architectures/master/virtual-machines/single-vm/extensions/linux/single-vm.sh"
                     ]
                   },
                   "protectedSettings": {
