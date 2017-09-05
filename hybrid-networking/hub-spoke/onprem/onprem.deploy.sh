@@ -54,4 +54,4 @@ az group deployment create --resource-group $RESOURCE_GROUP_NAME --name "ra-onpr
 # Install VPN gateway
 echo "Deploying VPN gateway..."
 az group deployment create --resource-group $RESOURCE_GROUP_NAME --name "ra-onprem-vpn-gw-deployment" \
---template-file $ONPREM_VPN_TEMPLATE_FILE --parameters $ONPREM_VPN_GW_PARAMETERS_FILE
+--template-file $ONPREM_VPN_TEMPLATE_FILE --parameters @$ONPREM_VPN_GW_PARAMETERS_FILE

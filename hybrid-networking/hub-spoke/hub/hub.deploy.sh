@@ -40,20 +40,23 @@ HUB_JB_PARAMETERS_FILE="${SCRIPT_DIR}/hub.vm.parameters.json"
 # Create the resource group for the hub environment, saving the output for later.
 HUB_NETWORK_RESOURCE_GROUP_OUTPUT=$(az group create --name $RESOURCE_GROUP_NAME --location $LOCATION --subscription $SUBSCRIPTION_ID --json) || exit 1
 
+# Switch to the right subscription
+az account set --subscription $SUBSCRIPTION_ID
+
+# Create the resource group
+az group create --location $LOCATION --name $RESOURCE_GROUP_NAME
+
 # Create the hub virtual network
 echo "Deploying hub virtual network..."
 az group deployment create --resource-group $RESOURCE_GROUP_NAME --name "ra-hub-vnet-deployment" \
---template-uri $VIRTUAL_NETWORK_TEMPLATE_URI --parameters-file $HUB_VIRTUAL_NETWORK_PARAMETERS_FILE \
---subscription $SUBSCRIPTION_ID || exit 1
+--template-uri $VIRTUAL_NETWORK_TEMPLATE_URI --parameters @$HUB_VIRTUAL_NETWORK_PARAMETERS_FILE
 
 # Create the jumpbox vm
 echo "Deploying jumpbox..."
 az group deployment create --resource-group $RESOURCE_GROUP_NAME --name "ra-hub-jb-deployment" \
---template-uri $MULTI_VMS_TEMPLATE_URI --parameters-file $HUB_JB_PARAMETERS_FILE \
---subscription $SUBSCRIPTION_ID || exit 1
+--template-uri $MULTI_VMS_TEMPLATE_URI --parameters @$HUB_JB_PARAMETERS_FILE
 
 # Create the vpn gateway and connection to onprem
 echo "Deploying hub gateway and connection..."
 az group deployment create --resource-group $RESOURCE_GROUP_NAME --name "ra-hub-vpn-deployment" \
---template-uri $VPN_TEMPLATE_URI --parameters-file $HUB_VPN_PARAMETERS_FILE \
---subscription $SUBSCRIPTION_ID || exit 1
+--template-uri $VPN_TEMPLATE_URI --parameters @$HUB_VPN_PARAMETERS_FILE
