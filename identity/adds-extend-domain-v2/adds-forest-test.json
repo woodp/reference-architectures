@@ -8,7 +8,7 @@
                     "type": "VirtualMachine",
                     "settings": {
                         "vmCount": 2,
-                        "namePrefix": "forest2",
+                        "namePrefix": "forest4",
                         "size": "Standard_DS2_v2",
                         "adminUsername": "testadminuser",
                         "adminPassword": "test$!Passw0rd111",

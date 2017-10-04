@@ -40,7 +40,7 @@ Configuration CreateForest {
         {
             DiskId = 2
             RetryIntervalSec = 60
-            RetryCount = 40
+            RetryCount = 20
         }
         
         xDisk FVolume
