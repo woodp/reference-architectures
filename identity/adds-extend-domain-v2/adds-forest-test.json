@@ -8,7 +8,7 @@
                     "type": "VirtualMachine",
                     "settings": {
                         "vmCount": 2,
-                        "namePrefix": "forest1",
+                        "namePrefix": "forest2",
                         "size": "Standard_DS2_v2",
                         "adminUsername": "testadminuser",
                         "adminPassword": "test$!Passw0rd111",
@@ -41,7 +41,7 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                      "Modulesurl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/adds-forest.zip?raw=true",
-                                     "ConfigurationFunction":"adds.ps1\\CreateForest",
+                                     "ConfigurationFunction":"adds-forest.ps1\\CreateForest",
                                      "Properties": {
                                           "DomainName": "contoso.com",
                                           "DomainNetbiosName": "CONTOSO",

@@ -15,7 +15,7 @@ Configuration CreateForest {
     (
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
-        [securestring]$SafeModePassword = "SafeModeP@ssw0rd",
+        [string]$SafeModePassword = "SafeModeP@ssw0rd",
         [string]$DomainName = "contoso.com",
         [string]$DomainNetbiosName = "CONTOSO",
 
