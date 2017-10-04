@@ -13,6 +13,8 @@ Configuration CreateForest {
     param
     #v1.4
     (
+        [Parameter(Mandatory)]
+        [System.Management.Automation.PSCredential]$AdminCreds,
         [securestring]$SafeModePassword = "SafeModeP@ssw0rd",
         [string]$DomainName = "contoso.com",
         [string]$DomainNetbiosName = "CONTOSO",
@@ -21,10 +23,9 @@ Configuration CreateForest {
         [Int]$RetryIntervalSec=30
     )
 
-    Import-DSCResource -ModuleName xStorage
-    Import-DscResource -ModuleName xActiveDirectory, xNetworking, xPendingReboot
+    Import-DscResource -ModuleName xStorage, xActiveDirectory, xNetworking, xPendingReboot
        
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\Administrator", $SafeModePassword)
+    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($AdminCreds.UserName)", $AdminCreds.Password)
 
     Node localhost
     {
@@ -37,9 +38,9 @@ Configuration CreateForest {
 
         xWaitforDisk Disk2
         {
-            DiskId =  = 2
+            DiskId = 2
             RetryIntervalSec = 60
-            RetryCount =  = 60
+            RetryCount = 40
         }
         
         xDisk FVolume

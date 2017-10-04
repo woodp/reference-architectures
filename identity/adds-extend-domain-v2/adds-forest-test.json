@@ -1,0 +1,68 @@
+{
+    "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/master/schemas/buildingBlocks.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "buildingBlocks": {
+            "value": [
+                {
+                    "type": "VirtualMachine",
+                    "settings": {
+                        "vmCount": 2,
+                        "namePrefix": "forest1",
+                        "size": "Standard_DS2_v2",
+                        "adminUsername": "testadminuser",
+                        "adminPassword": "test$!Passw0rd111",
+                        "virtualNetwork": {
+                            "resourceGroupName": "resource-group-name",
+                            "name": "vnet-name"
+                        },
+                        "nics": [
+                            {
+                                "isPublic": true,
+                                "privateIPAllocationMethod": "Dynamic",
+                                "publicIPAllocationMethod": "Static",
+                                "resourceGroupName": "resource-group-name",
+                                "subnetName": "web"
+                            }
+                        ],
+                        "osType": "windows",
+                        "dataDisks": {
+                          "count": 1,
+                          "diskSizeGB": 127,
+                          "caching": "None",
+                          "createOption": "empty"
+                        },
+                        "extensions": [
+                            {
+                                "name": "addsc",
+                                "publisher": "Microsoft.Powershell",
+                                "type": "DSC",
+                                "typeHandlerVersion": "2.19",
+                                "autoUpgradeMinorVersion": true,
+                                "settings": {
+                                     "Modulesurl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/adds-forest.zip?raw=true",
+                                     "ConfigurationFunction":"adds.ps1\\CreateForest",
+                                     "Properties": {
+                                          "DomainName": "contoso.com",
+                                          "DomainNetbiosName": "CONTOSO",
+                                          "SafeModePassword": "PrivateSettingsRef:SafeModeAdminPassword",
+                                          "AdminCreds": {
+                                            "UserName": "testadminuser",
+                                            "Password": "PrivateSettingsRef:AdminPassword"
+                                       }                                          
+                                     }
+                                },
+                                "protectedSettings": {
+                                    "Items": {
+                                        "AdminPassword": "test$!Passw0rd111",
+                                        "SafeModeAdminPassword": "SafeModeP@ssw0rd"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

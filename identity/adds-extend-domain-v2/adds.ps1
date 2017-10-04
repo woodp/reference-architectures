@@ -67,13 +67,13 @@ Configuration CreateDomainController {
             Name = "DNS"
         }
 
-        # xDnsServerAddress DnsServerAddress 
-        # { 
-        #     Address        = '127.0.0.1' 
-        #     InterfaceAlias = $InterfaceAlias
-        #     AddressFamily  = 'IPv4'
-        #     DependsOn = "[WindowsFeature]DNS"
-        # }
+        xDnsServerAddress DnsServerAddress 
+        { 
+            Address        = '127.0.0.1' 
+            InterfaceAlias = $InterfaceAlias
+            AddressFamily  = 'IPv4'
+            DependsOn = "[WindowsFeature]DNS"
+        }
 
         WindowsFeature ADDSInstall 
         { 
@@ -101,7 +101,7 @@ Configuration CreateDomainController {
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
-            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall"
+            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall","[xDnsServerAddress]DnsServerAddress"
         }
 
         xWaitForADDomain DscForestWait
