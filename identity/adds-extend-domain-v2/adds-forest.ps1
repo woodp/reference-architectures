@@ -15,7 +15,9 @@ Configuration CreateForest {
     (
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
-        [string]$SafeModePassword = "SafeModeP@ssw0rd",
+        [Parameter(Mandatory)]
+        [System.Management.Automation.PSCredential]$SafeModeAdminCreds,
+
         [string]$DomainName = "contoso.com",
         [string]$DomainNetbiosName = "CONTOSO",
 
@@ -26,7 +28,11 @@ Configuration CreateForest {
     Import-DscResource -ModuleName xStorage, xActiveDirectory, xNetworking, xPendingReboot
        
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($AdminCreds.UserName)", $AdminCreds.Password)
+    [System.Management.Automation.PSCredential ]$SafeDomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($SafeModeAdminCreds.UserName)", $SafeModeAdminCreds.Password)
 
+    $Interface = Get-NetAdapter|Where-Object Name -Like "Ethernet*"|Select-Object -First 1
+    $InterfaceAlias = $($Interface.Name)
+    
     Node localhost
     {
         LocalConfigurationManager
@@ -77,7 +83,7 @@ Configuration CreateForest {
             DomainName = $DomainName
             DomainNetbiosName = $DomainNetbiosName
             DomainAdministratorCredential = $DomainCreds
-            SafemodeAdministratorPassword = $SafeModePassword
+            SafemodeAdministratorPassword = $SafeDomainCreds
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
