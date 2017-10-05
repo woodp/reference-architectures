@@ -72,6 +72,12 @@ Configuration CreateForest {
             DependsOn = "[WindowsFeature]DNS"
         }
 
+        WindowsFeature RSAT
+        {
+             Ensure = "Present"
+             Name = "RSAT"
+        }        
+
         WindowsFeature ADDSInstall 
         { 
             Ensure = "Present" 

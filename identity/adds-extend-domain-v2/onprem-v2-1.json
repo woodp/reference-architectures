@@ -57,7 +57,7 @@
             },
             "nics": [
               {
-                "isPublic": false,
+                "isPublic": true, // using true for debugging
                 "isPrimary": true,
                 "privateIPAllocationMethod": "Static",
                 "subnetName": "adds",

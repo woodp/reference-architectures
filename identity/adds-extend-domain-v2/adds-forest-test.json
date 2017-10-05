@@ -45,11 +45,14 @@
                                      "Properties": {
                                           "DomainName": "contoso.com",
                                           "DomainNetbiosName": "CONTOSO",
-                                          "SafeModePassword": "PrivateSettingsRef:SafeModeAdminPassword",
                                           "AdminCreds": {
                                             "UserName": "testadminuser",
                                             "Password": "PrivateSettingsRef:AdminPassword"
-                                       }                                          
+                                          },
+                                          "SafeAdminCreds": {
+                                            "UserName": "testsafeadminuser",
+                                            "Password": "PrivateSettingsRef:SafeModeAdminPassword"
+                                         }                       
                                      }
                                 },
                                 "protectedSettings": {
