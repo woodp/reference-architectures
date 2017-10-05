@@ -100,7 +100,7 @@
                                 "UserName": "testadminuser",
                                 "Password": "PrivateSettingsRef:AdminPassword"
                               },
-                              "SafeAdminCreds": {
+                              "SafeModeAdminCreds": {
                                 "UserName": "testsafeadminuser",
                                 "Password": "PrivateSettingsRef:SafeModeAdminPassword"
                              }                       
