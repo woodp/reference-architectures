@@ -16,14 +16,13 @@ Configuration CreateDomainController {
         [string]$DomainName,
       
         [Parameter(Mandatory)]
-        [string]$SiteName,
-      
-        [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$SafeModeAdminCreds,
 
+        [string]$SiteName = "Default-First-Site-Name",
+        
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
