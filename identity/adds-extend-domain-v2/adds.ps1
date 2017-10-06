@@ -136,19 +136,10 @@ Configuration CreateDomainController {
             DependsOn = "[xADDomainController]SecondaryDC"
         }
 
-        xWaitForADDomain WaitForDC
-        {
-            DomainName = $DomainName
-            DomainUserCredential = $DomainCreds
-            RetryCount = $RetryCount
-            RetryIntervalSec = $RetryIntervalSec
-            DependsOn = "[xADDomainController]SecondaryDC"
-        } 
-
         xPendingReboot Reboot1
         { 
             Name = "RebootServer"
-            DependsOn = "[xWaitForADDomain]WaitForDC"
+            DependsOn = "[xWaitForADDomain]SecondaryDC"
         }
 
    }
