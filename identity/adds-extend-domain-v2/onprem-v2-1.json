@@ -57,7 +57,7 @@
             },
             "nics": [
               {
-                "isPublic": true,
+                "isPublic": false,
                 "isPrimary": true,
                 "privateIPAllocationMethod": "Static",
                 "subnetName": "adds",
