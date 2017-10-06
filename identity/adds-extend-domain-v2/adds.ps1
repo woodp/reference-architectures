@@ -139,7 +139,7 @@ Configuration CreateDomainController {
         xPendingReboot Reboot1
         { 
             Name = "RebootServer"
-            DependsOn = "[xWaitForADDomain]SecondaryDC"
+            DependsOn = "[xADDomainController]SecondaryDC"
         }
 
    }
