@@ -57,7 +57,7 @@
             },
             "nics": [
               {
-                "isPublic": true, // using true for debugging
+                "isPublic": true,
                 "isPrimary": true,
                 "privateIPAllocationMethod": "Static",
                 "subnetName": "adds",
@@ -230,7 +230,9 @@
                               "SafeModeAdminCreds": {
                                    "UserName": "testadminuser",
                                    "Password": "PrivateSettingsRef:SafeModeAdminPassword"
-                              }
+                              },
+                              "PrimaryDcIpAddress": "192.168.0.4",
+                              "ComputerName": "ad-vm2"
                          }
                     },
                     "protectedSettings": {

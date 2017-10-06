@@ -21,6 +21,12 @@ Configuration CreateDomainController {
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$SafeModeAdminCreds,
 
+        [Parameter(Mandatory)]
+        [string]$PrimaryDcIpAddress,
+
+        [Parameter(Mandatory)]
+        [string]$ComputerName,
+
         [string]$SiteName = "Default-First-Site-Name",
         
         [Int]$RetryCount=20,
@@ -42,7 +48,20 @@ Configuration CreateDomainController {
             ActionAfterReboot = 'ContinueConfiguration'            
             ConfigurationMode = 'ApplyOnly'            
             RebootNodeIfNeeded = $true            
-        } 
+        }
+
+        <# Allow this machine to find the PDC and its DNS server #>
+        [ScriptBlock]$SetScript =
+        {
+            Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses ("$PrimaryDcIpAddress")
+        }
+
+        Script SetDnsServerAddressToFindPDC
+        {
+            GetScript = {return @{}}
+            TestScript = {return $false} # Always run the SetScript for this.
+            SetScript = $SetScript.ToString().Replace('$PrimaryDcIpAddress', $PrimaryDcIpAddress)
+        }
 
         xWaitforDisk Disk2
         {
@@ -66,14 +85,6 @@ Configuration CreateDomainController {
             Name = "DNS"
         }
 
-        xDnsServerAddress DnsServerAddress 
-        { 
-            Address        = '127.0.0.1' 
-            InterfaceAlias = $InterfaceAlias
-            AddressFamily  = 'IPv4'
-            DependsOn = "[WindowsFeature]DNS"
-        }
-
         WindowsFeature RSAT
         {
              Ensure = "Present"
@@ -86,42 +97,58 @@ Configuration CreateDomainController {
             Name = "AD-Domain-Services"
         }  
 
-        # xADDomain FirstDC 
-        # {
-        #     DomainName = $DomainName
-        #     DomainAdministratorCredential = $DomainCreds
-        #     SafemodeAdministratorPassword = $SafeDomainCreds
-        #     DatabasePath = "F:\Adds\NTDS"
-        #     LogPath = "F:\Adds\NTDS"
-        #     SysvolPath = "F:\Adds\SYSVOL"
-        #     DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall","[xDnsServerAddress]DnsServerAddress"
-        # }
-
-        xADDomainController DC 
+        xWaitForADDomain WaitForPrimaryDC
         {
             DomainName = $DomainName
-            SiteName = $SiteName
+            DomainUserCredential = $DomainAdministratorCredentials
+            RetryCount = 600
+            RetryIntervalSec = 30
+            RebootRetryCount = 10
+            DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
+        }
+
+        # Wait for the first domain controller to be set up before we continue.
+        # xComputer JoinDomain
+        # {
+        #     Name = $ComputerName
+        #     DomainName = $DomainDnsName
+        #     Credential = $DomainAdministratorCredentials
+        #     DependsOn = "[xWaitForADDomain]WaitForPrimaryDC"
+        # }
+
+        xADDomainController SecondaryDC 
+        {
+            DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $SafeDomainCreds
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
-            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall","[xDnsServerAddress]DnsServerAddress"
+            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall","[xDnsServerAddress]DnsServerAddress", "[xWaitForADDomain]WaitForPrimaryDC"
         }
 
-        xWaitForADDomain DscForestWait
+        # Now make sure this computer uses itself as a DNS source
+        xDnsServerAddress DnsServerAddress
+        {
+            Address        = @('127.0.0.1', $PrimaryDcIpAddress)
+            InterfaceAlias = $InterfaceAlias
+            AddressFamily  = 'IPv4'
+            DependsOn = "[xADDomainController]SecondaryDC"
+        }
+
+        xWaitForADDomain WaitForDC
         {
             DomainName = $DomainName
             DomainUserCredential = $DomainCreds
             RetryCount = $RetryCount
             RetryIntervalSec = $RetryIntervalSec
-            DependsOn = "[xADDomainController]DC"
+            DependsOn = "[xADDomainController]SecondaryDC"
         } 
 
         xPendingReboot Reboot1
         { 
             Name = "RebootServer"
-            DependsOn = "[xWaitForADDomain]DscForestWait"
+            DependsOn = "[xWaitForADDomain]WaitForDC"
         }
 
    }
