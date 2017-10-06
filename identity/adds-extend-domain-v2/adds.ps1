@@ -53,14 +53,14 @@ Configuration CreateDomainController {
         <# Allow this machine to find the PDC and its DNS server #>
         [ScriptBlock]$SetScript =
         {
-            Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses ("$PrimaryDcIpAddress")
+            Set-DnsClientServerAddress -InterfaceAlias ("$InterfaceAlias") -ServerAddresses ("$PrimaryDcIpAddress")
         }
 
         Script SetDnsServerAddressToFindPDC
         {
             GetScript = {return @{}}
             TestScript = {return $false} # Always run the SetScript for this.
-            SetScript = $SetScript.ToString().Replace('$PrimaryDcIpAddress', $PrimaryDcIpAddress)
+            SetScript = $SetScript.ToString().Replace('$PrimaryDcIpAddress', $PrimaryDcIpAddress).Replace('$InterfaceAlias', $InterfaceAlias)
         }
 
         xWaitforDisk Disk2
