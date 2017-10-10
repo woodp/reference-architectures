@@ -3,17 +3,16 @@
 #                        that will be assigned to the Domain Administrator account
 # $SafeModeAdminCreds -  a PSCredentials object that contains the password that will
 #                        be assigned to the Safe Mode Administrator account
+# $myFirstUserCreds   -  a PSCredentials object that contains the username and
+#                        password for the first domain user account to create
 # $RetryCount         -  defines how many retries should be performed while waiting
 #                        for the domain to be provisioned
 # $RetryIntervalSec   -  defines the seconds between each retry to check if the 
 #                        domain has been provisioned 
-Configuration CreateDomainController {
+Configuration CreateForest {
     param
     #v1.4
     (
-        [Parameter(Mandatory)]
-        [string]$DomainName,
-      
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
@@ -21,10 +20,19 @@ Configuration CreateDomainController {
         [System.Management.Automation.PSCredential]$SafeModeAdminCreds,
 
         [Parameter(Mandatory)]
-        [string]$PrimaryDcIpAddress,
+        [string]$DomainName,
 
         [Parameter(Mandatory)]
-        [string]$ComputerName,
+        [string]$DomainNetbiosName,
+
+        [Parameter(Mandatory)]
+        [string]$PrimaryDcIpAddress,
+        
+        [Parameter(Mandatory)]
+        [string]$PrimaryDcName,
+        
+        [Parameter(Mandatory)]
+        [string]$SecondaryDcName,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
@@ -37,34 +45,23 @@ Configuration CreateDomainController {
 
     $Interface = Get-NetAdapter|Where-Object Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
+    
+    AllNodes = @($PrimaryDcName, $SecondaryDcName)
 
-    Node localhost
+    Node $AllNodes
     {
-        LocalConfigurationManager            
+        LocalConfigurationManager
         {            
             ActionAfterReboot = 'ContinueConfiguration'            
             ConfigurationMode = 'ApplyOnly'            
             RebootNodeIfNeeded = $true            
-        }
-
-        # Allow this machine to find the PDC and its DNS server
-        [ScriptBlock]$SetScript =
-        {
-            Set-DnsClientServerAddress -InterfaceAlias ("$InterfaceAlias") -ServerAddresses ("$PrimaryDcIpAddress")
-        }
-
-        Script SetDnsServerAddressToFindPDC
-        {
-            GetScript = {return @{}}
-            TestScript = {return $false} # Always run the SetScript for this.
-            SetScript = $SetScript.ToString().Replace('$PrimaryDcIpAddress', $PrimaryDcIpAddress).Replace('$InterfaceAlias', $InterfaceAlias)
-        }
+        } 
 
         xWaitforDisk Disk2
         {
-            DiskId =  2
+            DiskId = 2
             RetryIntervalSec = 60
-            RetryCount = 60
+            RetryCount = 20
         }
         
         xDisk FVolume
@@ -93,7 +90,61 @@ Configuration CreateDomainController {
             Ensure = "Present" 
             Name = "AD-Domain-Services"
         }  
+    }
 
+    Node $PrimaryDcName
+    {
+        xDnsServerAddress DnsServerAddress 
+        { 
+            Address        = '127.0.0.1' 
+            InterfaceAlias = $InterfaceAlias
+            AddressFamily  = 'IPv4'
+            DependsOn = "[WindowsFeature]DNS"
+        }
+
+        xADDomain AddDomain
+        {
+            DomainName = $DomainName
+            DomainNetbiosName = $DomainNetbiosName
+            DomainAdministratorCredential = $DomainCreds
+            SafemodeAdministratorPassword = $SafeDomainCreds
+            DatabasePath = "F:\Adds\NTDS"
+            LogPath = "F:\Adds\NTDS"
+            SysvolPath = "F:\Adds\SYSVOL"
+            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall","[xDnsServerAddress]DnsServerAddress"
+        }
+
+        xWaitForADDomain DomainWait
+        {
+            DomainName = $DomainName
+            DomainUserCredential = $DomainCreds
+            RetryCount = $RetryCount
+            RetryIntervalSec = $RetryIntervalSec
+            DependsOn = "[xADDomain]AddDomain"
+        } 
+
+        xPendingReboot Reboot1
+        { 
+            Name = "RebootServer"
+            DependsOn = "[xWaitForADDomain]DomainWait"
+        }
+   }
+
+   Node $SecondaryDcName
+   {
+        # Allow this machine to find the PDC and its DNS server
+        [ScriptBlock]$SetScript =
+        {
+            Set-DnsClientServerAddress -InterfaceAlias ("$InterfaceAlias") -ServerAddresses ("$PrimaryDcIpAddress")
+        }
+
+        Script SetDnsServerAddressToFindPDC
+        {
+            GetScript = {return @{}}
+            TestScript = {return $false} # Always run the SetScript for this.
+            SetScript = $SetScript.ToString().Replace('$PrimaryDcIpAddress', $PrimaryDcIpAddress).Replace('$InterfaceAlias', $InterfaceAlias)
+        }
+    
         xWaitForADDomain WaitForPrimaryDC
         {
             DomainName = $DomainName
@@ -116,7 +167,7 @@ Configuration CreateDomainController {
         }
 
         # Now make sure this computer uses itself as a DNS source
-        xDnsServerAddress DnsServerAddress
+        xDnsServerAddress DnsServerAddress2
         {
             Address        = @('127.0.0.1', $PrimaryDcIpAddress)
             InterfaceAlias = $InterfaceAlias
@@ -124,7 +175,7 @@ Configuration CreateDomainController {
             DependsOn = "[xADDomainController]SecondaryDC"
         }
 
-        xPendingReboot Reboot1
+        xPendingReboot Reboot2
         { 
             Name = "RebootServer"
             DependsOn = "[xADDomainController]SecondaryDC"
