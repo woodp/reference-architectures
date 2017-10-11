@@ -49,9 +49,9 @@ Configuration CreateForest {
     $Interface = Get-NetAdapter|Where-Object Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
     
-    $AllNodes = @($PrimaryDcName, $SecondaryDcName)
+    $Nodes = @($PrimaryDcName, $SecondaryDcName)
 
-    Node $AllNodes
+    Node $Nodes
     {
         LocalConfigurationManager
         {            
