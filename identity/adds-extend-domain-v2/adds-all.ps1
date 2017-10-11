@@ -39,9 +39,12 @@ Configuration CreateForest {
     )
 
     Import-DscResource -ModuleName xStorage, xActiveDirectory, xNetworking, xPendingReboot
-       
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($AdminCreds.UserName)", $AdminCreds.Password)
-    [System.Management.Automation.PSCredential ]$SafeDomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($SafeModeAdminCreds.UserName)", $SafeModeAdminCreds.Password)
+
+    $AdminSecPass = ConvertTo-SecureString $AdminCreds.Password -AsPlainText -Force
+    $SafeSecPass = ConvertTo-SecureString $SafeModeAdminCreds.Password -AsPlainText -Force
+    
+    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($AdminCreds.UserName)", $AdminSecPass)
+    [System.Management.Automation.PSCredential ]$SafeDomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($SafeModeAdminCreds.UserName)", $SafeSecPass)
 
     $Interface = Get-NetAdapter|Where-Object Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
