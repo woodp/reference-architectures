@@ -1,9 +1,1 @@
-@{
-    AllNodes = @(
-
-        @{
-            Nodename = "*"
-            PSDscAllowPlainTextPassword = $true
-        }
-    )
-}
+@{ AllNodes = @( @{ Nodename = "*"; PSDscAllowPlainTextPassword = $true })}

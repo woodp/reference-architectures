@@ -34,6 +34,9 @@ Configuration CreateForest {
         [Parameter(Mandatory)]
         [string]$SecondaryDcName,
 
+        [Parameter(Mandatory)]
+        [System.Management.Automation.Remoting.PSSessionConfigurationData]$ConfigurationData,
+
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
@@ -50,6 +53,8 @@ Configuration CreateForest {
     $InterfaceAlias = $($Interface.Name)
     
     $Nodes = @($PrimaryDcName, $SecondaryDcName)
+
+    @{ AllNodes = @( @{ Nodename = 'ad-vm1'; PSDscAllowPlainTextPassword = $true }, @{ Nodename = 'ad-vm2'; PSDscAllowPlainTextPassword = $true } ) }
 
     Node $Nodes
     {
@@ -95,7 +100,7 @@ Configuration CreateForest {
         }  
     }
 
-    Node $PrimaryDcName
+    Node $AllNodes.Where{$_.Name -eq $PrimaryDcName}.Nodename
     {
         xDnsServerAddress DnsServerAddress 
         { 
@@ -133,7 +138,7 @@ Configuration CreateForest {
         }
    }
 
-   Node $SecondaryDcName
+   Node $AllNodes.Where{$_.Name -eq $SecondaryDcName}.Nodename
    {
         # Allow this machine to find the PDC and its DNS server
         [ScriptBlock]$SetScript =
