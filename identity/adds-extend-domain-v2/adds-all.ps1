@@ -34,9 +34,6 @@ Configuration CreateForest {
         [Parameter(Mandatory)]
         [string]$SecondaryDcName,
 
-        [Parameter(Mandatory)]
-        [System.Management.Automation.Remoting.PSSessionConfigurationData]$ConfigurationData,
-
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
@@ -52,11 +49,22 @@ Configuration CreateForest {
     $Interface = Get-NetAdapter|Where-Object Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
     
-    $Nodes = @($PrimaryDcName, $SecondaryDcName)
+    @{
+        AllNodes = @(
 
-    @{ AllNodes = @( @{ Nodename = 'ad-vm1'; PSDscAllowPlainTextPassword = $true }, @{ Nodename = 'ad-vm2'; PSDscAllowPlainTextPassword = $true } ) }
+            @{
+                Nodename = 'ad-vm1'
+                PSDscAllowPlainTextPassword = $true
+            },
 
-    Node $Nodes
+            @{
+                Nodename = 'ad-vm2'
+                PSDscAllowPlainTextPassword = $true
+            }
+        )
+    }
+
+    Node $AllNodes.NodeName
     {
         LocalConfigurationManager
         {            
