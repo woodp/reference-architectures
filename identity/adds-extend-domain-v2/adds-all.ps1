@@ -139,10 +139,59 @@ Configuration CreateForest {
             DependsOn = "[xADDomain]AddDomain"
         } 
 
+        xADDomainController PrimaryDC 
+        {
+            DomainName = $DomainName
+            DomainAdministratorCredential = $DomainCreds
+            SafemodeAdministratorPassword = $SafeDomainCreds
+            DatabasePath = "F:\Adds\NTDS"
+            LogPath = "F:\Adds\NTDS"
+            SysvolPath = "F:\Adds\SYSVOL"
+            DependsOn = "[xWaitForADDomain]DomainWait"
+        }
+
+        Script SetReplication
+        {
+            GetScript = {
+                $getFilter = {Name -like "$using:SiteName"}
+                $replicationSite = Get-ADReplicationSite -Filter $getFilter
+                return @{ 'Result' = $replicationSite.Name }
+            }
+            TestScript = {
+                $testFilter = {Name -like "$using:SiteName"}
+                If (Get-ADReplicationSite -Filter $testFilter)
+                {
+                    If (Get-ADReplicationSubnet -Filter *) 
+                    {
+                        return $true
+                    }
+                }
+                Write-Verbose -Message ('ReplicationSite or ReplicationSubnet not installed')
+                
+                return $false
+            }
+            SetScript = { 
+                
+                $Description="azure vnet ad site"
+                $Location="azure subnet location"
+                $SitelinkName = "AzureToOnpremLink"
+
+                # $AdminSecPass = ConvertTo-SecureString $AdminCreds.Password -AsPlainText -Force
+                # [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$(get-AdminCreds.UserName)", $AdminSecPass)
+                            
+                New-ADReplicationSite -Name $using:SiteName -Description $Description # -Credential $DomainCreds 
+                
+                New-ADReplicationSubnet -Name $using:Cidr -Site $using:SiteName -Location $Location # -Credential $DomainCreds 
+                
+                New-ADReplicationSiteLink -Name $SitelinkName -SitesIncluded $using:OnpremSiteName, $using:SiteName -Cost 100 -ReplicationFrequency $using:ReplicationFrequency -InterSiteTransportProtocol IP #-Credential $DomainCreds
+            }
+            DependsOn = "[xADDomainController]PrimaryDC"
+        }
+
         xPendingReboot Reboot1
         { 
             Name = "RebootServer"
-            DependsOn = "[xWaitForADDomain]DomainWait"
+            DependsOn = @("[Script]SetReplication")
         }
    }
 
