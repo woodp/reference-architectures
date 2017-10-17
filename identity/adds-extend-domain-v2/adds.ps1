@@ -98,7 +98,7 @@ Configuration CreateDomainController {
         {
             DomainName = $DomainName
             DomainUserCredential = $DomainAdministratorCredentials
-            RetryCount = 600
+            RetryCount = 30
             RetryIntervalSec = 30
             RebootRetryCount = 10
             DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
