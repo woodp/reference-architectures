@@ -23,6 +23,9 @@ Configuration CreateDomainController {
         [Parameter(Mandatory)]
         [string]$PrimaryDcIpAddress,
 
+        [Parameter(Mandatory)]
+        [string]$SiteName,
+        
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
@@ -106,6 +109,7 @@ Configuration CreateDomainController {
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $SafeDomainCreds
+            SiteName = $SiteName
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
