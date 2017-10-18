@@ -94,15 +94,15 @@ Configuration CreateDomainController {
             Name = "AD-Domain-Services"
         }  
 
-        xWaitForADDomain WaitForPrimaryDC
-        {
-            DomainName = $DomainName
-            DomainUserCredential = $DomainAdministratorCredentials
-            RetryCount = 30
-            RetryIntervalSec = 30
-            RebootRetryCount = 10
-            DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
-        }
+        # xWaitForADDomain WaitForPrimaryDC
+        # {
+        #     DomainName = $DomainName
+        #     DomainUserCredential = $DomainAdministratorCredentials
+        #     RetryCount = 30
+        #     RetryIntervalSec = 30
+        #     RebootRetryCount = 10
+        #     DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
+        # }
 
         xADDomainController SecondaryDC 
         {
