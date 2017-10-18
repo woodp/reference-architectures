@@ -23,9 +23,6 @@ Configuration CreateDomainController {
         [Parameter(Mandatory)]
         [string]$PrimaryDcIpAddress,
 
-        [Parameter(Mandatory)]
-        [string]$ComputerName,
-
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
