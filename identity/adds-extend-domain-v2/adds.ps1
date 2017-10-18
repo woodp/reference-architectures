@@ -113,7 +113,7 @@ Configuration CreateDomainController {
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
-            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall", "[xWaitForADDomain]WaitForPrimaryDC"
+            DependsOn = @("[Script]SetDnsServerAddressToFindPDC"),"[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall"
         }
 
         # Now make sure this computer uses itself as a DNS source
