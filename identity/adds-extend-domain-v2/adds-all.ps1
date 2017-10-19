@@ -93,6 +93,7 @@ Configuration CreateForest {
         { 
             Ensure = "Present" 
             Name = "DNS"
+            IncludeAllSubFeature = $true
         }
 
         WindowsFeature RSAT
@@ -105,6 +106,7 @@ Configuration CreateForest {
         { 
             Ensure = "Present" 
             Name = "AD-Domain-Services"
+            IncludeAllSubFeature = $true
         }  
     }
 

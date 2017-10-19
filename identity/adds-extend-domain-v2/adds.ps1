@@ -80,6 +80,7 @@ Configuration CreateDomainController {
         { 
             Ensure = "Present" 
             Name = "DNS"
+            IncludeAllSubFeature = $true
         }
 
         WindowsFeature RSAT
@@ -92,7 +93,8 @@ Configuration CreateDomainController {
         { 
             Ensure = "Present" 
             Name = "AD-Domain-Services"
-        }  
+            IncludeAllSubFeature = $true
+        }
 
         # xWaitForADDomain WaitForPrimaryDC
         # {
@@ -128,7 +130,7 @@ Configuration CreateDomainController {
         xPendingReboot Reboot1
         { 
             Name = "RebootServer"
-            DependsOn = "[xADDomainController]SecondaryDC"
+            DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
 
    }
