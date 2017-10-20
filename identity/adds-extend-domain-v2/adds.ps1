@@ -96,15 +96,15 @@ Configuration CreateDomainController {
             IncludeAllSubFeature = $true
         }
 
-        # xWaitForADDomain WaitForPrimaryDC
-        # {
-        #     DomainName = $DomainName
-        #     DomainUserCredential = $DomainAdministratorCredentials
-        #     RetryCount = 30
-        #     RetryIntervalSec = 30
-        #     RebootRetryCount = 10
-        #     DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
-        # }
+        xWaitForADDomain WaitForPrimaryDC
+        {
+            DomainName = $DomainName
+            DomainUserCredential = $DomainAdministratorCredentials
+            RetryCount = 30
+            RetryIntervalSec = 30
+            RebootRetryCount = 10
+            DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
+        }
 
         xADDomainController SecondaryDC 
         {
@@ -115,7 +115,7 @@ Configuration CreateDomainController {
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
-            DependsOn = @("[Script]SetDnsServerAddressToFindPDC"),"[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall"
+            DependsOn = "[xWaitForADDomain]WaitForPrimaryDC","[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall"
         }
 
         # Now make sure this computer uses itself as a DNS source
