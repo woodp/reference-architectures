@@ -37,7 +37,7 @@ Configuration CreateForest {
         [Parameter(Mandatory=$True)]
         [int]$ReplicationFrequency,        
 
-        [Int]$RetryCount=30,
+        [Int]$RetryCount=60,
         [Int]$RetryIntervalSec=60
     )
 
@@ -123,6 +123,7 @@ Configuration CreateForest {
             DomainUserCredential = $DomainCreds
             RetryCount = $RetryCount
             RetryIntervalSec = $RetryIntervalSec
+            RebootRetryCount = 5
             DependsOn = "[xADDomain]AddDomain"
         } 
 
