@@ -90,17 +90,7 @@ Configuration CreateDomainController {
             SetScript = $SetScript.ToString().Replace('$PrimaryDcIpAddress', $PrimaryDcIpAddress).Replace('$InterfaceAlias', $InterfaceAlias)
         }
     
-        xWaitForADDomain WaitForPrimaryDC
-        {
-            DomainName = $DomainName
-            DomainUserCredential = $DomainAdministratorCredentials
-            RetryCount = 600
-            RetryIntervalSec = 30
-            RebootRetryCount = 10
-            DependsOn = @("[Script]SetDnsServerAddressToFindPDC")
-        }
-
-        xADDomainController SecondaryDC 
+        xADDomainController SecondaryDC
         {
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
@@ -108,7 +98,7 @@ Configuration CreateDomainController {
             DatabasePath = "F:\Adds\NTDS"
             LogPath = "F:\Adds\NTDS"
             SysvolPath = "F:\Adds\SYSVOL"
-            DependsOn = "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall", "[xWaitForADDomain]WaitForPrimaryDC"
+            DependsOn = @("[Script]SetDnsServerAddressToFindPDC"), "[xWaitForDisk]Disk2","[WindowsFeature]ADDSInstall"
         }
 
         # Now make sure this computer uses itself as a DNS source
