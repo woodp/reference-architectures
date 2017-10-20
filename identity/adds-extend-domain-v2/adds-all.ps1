@@ -34,8 +34,20 @@ Configuration CreateForest {
         [Parameter(Mandatory)]
         [string]$SecondaryDcName,
 
+        [Parameter(Mandatory)]
+        [string]$SiteName,
+
+        [Parameter(Mandatory=$True)]
+        [string]$OnpremSiteName,
+      
+        [Parameter(Mandatory=$True)]
+        [string]$Cidr,
+      
+        [Parameter(Mandatory=$True)]
+        [int]$ReplicationFrequency,        
+
         [Int]$RetryCount=20,
-        [Int]$RetryIntervalSec=30
+        [Int]$RetryIntervalSec=60
     )
 
     Import-DscResource -ModuleName xStorage, xActiveDirectory, xNetworking, xPendingReboot
@@ -49,21 +61,6 @@ Configuration CreateForest {
     $Interface = Get-NetAdapter|Where-Object Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
     
-    @{
-        AllNodes = @(
-
-            @{
-                Nodename = 'ad-vm1'
-                PSDscAllowPlainTextPassword = $true
-            },
-
-            @{
-                Nodename = 'ad-vm2'
-                PSDscAllowPlainTextPassword = $true
-            }
-        )
-    }
-
     Node $AllNodes.NodeName
     {
         LocalConfigurationManager
@@ -110,7 +107,7 @@ Configuration CreateForest {
         }  
     }
 
-    Node $AllNodes.Where{$_.Name -eq $PrimaryDcName}.Nodename
+    Node $AllNodes.Where{$_.Role -eq 'Primary'}.Nodename
     {
         xDnsServerAddress DnsServerAddress 
         { 
@@ -180,14 +177,17 @@ Configuration CreateForest {
 
                 # $AdminSecPass = ConvertTo-SecureString $AdminCreds.Password -AsPlainText -Force
                 # [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$(get-AdminCreds.UserName)", $AdminSecPass)
-                            
-                New-ADReplicationSite -Name $using:SiteName -Description $Description # -Credential $DomainCreds 
                 
+                Write-Verbose -Message ('Installing ReplicationSite')
+                New-ADReplicationSite -Name $using:SiteName -Description $Description # -Credential $DomainCreds 
+
+                Write-Verbose -Message ('Installing ReplicationSubnet')
                 New-ADReplicationSubnet -Name $using:Cidr -Site $using:SiteName -Location $Location # -Credential $DomainCreds 
                 
+                Write-Verbose -Message ('Installing ReplicationSiteLink')
                 New-ADReplicationSiteLink -Name $SitelinkName -SitesIncluded $using:OnpremSiteName, $using:SiteName -Cost 100 -ReplicationFrequency $using:ReplicationFrequency -InterSiteTransportProtocol IP #-Credential $DomainCreds
             }
-            DependsOn = "[xADDomainController]PrimaryDC"
+            DependsOn = "[xWaitForADDomain]DomainWait"
         }
 
         xPendingReboot Reboot1
@@ -197,7 +197,7 @@ Configuration CreateForest {
         }
    }
 
-   Node $AllNodes.Where{$_.Name -eq $SecondaryDcName}.Nodename
+   Node $AllNodes.Where{$_.Role -eq 'Secondary'}.Nodename
    {
         # Allow this machine to find the PDC and its DNS server
         [ScriptBlock]$SetScript =
