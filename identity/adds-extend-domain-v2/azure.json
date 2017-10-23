@@ -50,7 +50,7 @@
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                        "Modulesurl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/adds.zip?raw=true",
-                       "ConfigurationFunction":"adds.ps1\\CreateDomainController",
+                       "ConfigurationFunction":"azure.ps1\\CreateDomainController",
                        "Properties": {
                             "DomainName": "contoso.com",
                             "SiteName": "Azure-Vnet-Site",

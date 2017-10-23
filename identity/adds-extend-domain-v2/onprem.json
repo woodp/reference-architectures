@@ -146,7 +146,7 @@
                     "autoUpgradeMinorVersion": true,
                     "settings": {
                          "ModulesUrl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/adds.zip?raw=true",
-                         "ConfigurationFunction":"adds-vm1.ps1\\CreateForest",
+                         "ConfigurationFunction":"onprem-primary.ps1\\CreateForest",
                          "Properties": {
                               "DomainName": "contoso.com",
                               "DomainNetbiosName": "CONTOSO",
@@ -191,7 +191,7 @@
                     "autoUpgradeMinorVersion": true,
                     "settings": {
                          "ModulesUrl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/adds.zip?raw=true",
-                         "ConfigurationFunction":"adds-vm2.ps1\\CreateDomainController",
+                         "ConfigurationFunction":"onprem-secondary.ps1\\CreateDomainController",
                          "Properties": {
                               "DomainName": "contoso.com",
                               "DomainNetbiosName": "CONTOSO",
