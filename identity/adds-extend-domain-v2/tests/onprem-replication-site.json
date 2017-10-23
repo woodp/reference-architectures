@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/master/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualMachineExtension",
+          "settings": [
+            {
+              "vms": [
+                "ad-vm1"
+              ],
+              "extensions": [
+                {
+                    "name": "addsc",
+                    "publisher": "Microsoft.Powershell",
+                    "type": "DSC",
+                    "typeHandlerVersion": "2.1",
+                    "autoUpgradeMinorVersion": true,
+                    "settings": {
+                         "ModulesUrl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/adds-replication.zip?raw=true",
+                         "ConfigurationFunction":"adds-replication.ps1\\CreateReplicationSite",
+                         "Properties": {
+                              "DomainName": "contoso.com",
+                              "SiteName": "Azure-Vnet-Site",
+                              "OnpremSiteName": "Default-First-Site-Name",
+                              "Cidr": "10.0.0.0/16",
+                              "ReplicationFrequency": 10,
+                              "AdminCreds": {
+                                "UserName": "testadminuser",
+                                "Password": "PrivateSettingsRef:AdminPassword"
+                              }
+                         }
+                    },
+                    "protectedSettings": {
+                        "Items": {
+                            "AdminPassword": "test$!Passw0rd111"
+                        }
+                    }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

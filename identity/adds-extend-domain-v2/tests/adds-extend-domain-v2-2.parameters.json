@@ -1,0 +1,85 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/spikes/spikes/nodejs-spike/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "adds-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "GatewaySubnet",
+                  "addressPrefix": "10.0.255.224/27"
+                },
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "10.0.0.128/25"
+                },
+                {
+                  "name": "dmz-in",
+                  "addressPrefix": "10.0.0.64/27"
+                },
+                {
+                  "name": "dmz-out",
+                  "addressPrefix": "10.0.0.96/27"
+                },
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                },
+                {
+                  "name": "biz",
+                  "addressPrefix": "10.0.2.0/24"
+                },
+                {
+                  "name": "data",
+                  "addressPrefix": "10.0.3.0/24"
+                }
+              ],
+              "dnsServers": [
+                "192.168.0.4",
+                "192.168.0.5",
+                "168.63.129.16"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "VirtualNetworkGateway",
+          "settings": {
+            "name": "vpn-gateway1",
+            "gatewayType": "Vpn",
+            "vpnType": "RouteBased",
+            "sku": "VpnGw1",
+            "isPublic": true,
+            "virtualNetwork": {
+              "name": "adds-vnet"
+            }
+          }
+        },
+        {
+          "type": "Connection",
+          "settings": {
+            "name": "onprem-connection",
+            "routingWeight": 1,
+            "connectionType": "Vnet2Vnet",
+            "vpnType": "RouteBased",
+            "sharedKey": "123@sharedK5y",
+            "virtualNetworkGateway1": {
+              "name": "vpn-gateway1"
+            },
+            "virtualNetworkGateway2": {
+              "name": "onprem-vpn-gateway1"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+    "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/master/schemas/buildingBlocks.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "buildingBlocks": {
+            "value": [
+                {
+                    "type": "VirtualMachine",
+                    "settings": {
+                        "vmCount": 2,
+                        "namePrefix": "addsc2",
+                        "size": "Standard_DS2_v2",
+                        "adminUsername": "testadminuser",
+                        "adminPassword": "test$!Passw0rd111",
+                        "virtualNetwork": {
+                            "resourceGroupName": "resource-group-name",
+                            "name": "vnet-name"
+                        },
+                        "nics": [
+                            {
+                                "isPublic": true,
+                                "privateIPAllocationMethod": "Dynamic",
+                                "publicIPAllocationMethod": "Static",
+                                "resourceGroupName": "resource-group-name",
+                                "subnetName": "web"
+                            }
+                        ],
+                        "osType": "windows",
+                        "extensions": [
+                            {
+                                "name": "addsc",
+                                "publisher": "Microsoft.Powershell",
+                                "type": "DSC",
+                                "typeHandlerVersion": "2.19",
+                                "autoUpgradeMinorVersion": true,
+                                "settings": {
+                                     "Modulesurl": "https://github.com/woodp/reference-architectures/blob/ad-forest-dsc/identity/adds-extend-domain-v2/CreateNewADForest.zip?raw=true",
+                                     "ConfigurationFunction":"CreateNewADForest.ps1\\CreateNewADForest",
+                                     "Properties": {
+                                          "DomainName": "contoso.com",
+                                          "AdminCreds": {
+                                               "UserName": "testadminuser",
+                                               "Password": "PrivateSettingsRef:AdminPassword"
+                                          },
+                                          "SafeModeAdminCreds": {
+                                               "UserName": "testadminuser",
+                                               "Password": "PrivateSettingsRef:SafeModeAdminPassword"
+                                          },
+                                          "myFirstUserCreds": {
+                                               "UserName": "contoso",
+                                               "Password": "PrivateSettingsRef:MyFirstUserPassword"
+                                          }
+                       
+                                     }
+                                },
+                                "protectedSettings": {
+                                    "Items": {
+                                        "AdminPassword": "test$!Passw0rd111",
+                                        "SafeModeAdminPassword": "test$!Passw0rd111",
+                                        "MyFirstUserPassword": "testF1rstP@ssw0rd!"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
