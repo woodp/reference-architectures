@@ -13,7 +13,7 @@
               "computerNamePrefix": "sap-wdp",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "AweS0me@PW",
+              "adminPassword": "",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -94,7 +94,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": "AweS0me@PW"
+                    "Password": ""
                   }
                 }
               ]
@@ -110,7 +110,7 @@
               "computerNamePrefix": "sap-app",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "AweS0me@PW",
+              "adminPassword": "",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -150,7 +150,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": "AweS0me@PW"
+                    "Password": ""
                   }
                 }
               ]       
@@ -166,7 +166,7 @@
               "computerNamePrefix": "sap-scs",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "AweS0me@PW",
+              "adminPassword": "",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -351,7 +351,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": "AweS0me@PW"
+                    "Password": ""
                   }
                 },
                 {
@@ -382,7 +382,7 @@
               "computerNamePrefix": "sap-wit",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "AweS0me@PW",
+              "adminPassword": "",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -424,7 +424,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": "AweS0me@PW"
+                    "Password": ""
                   }
                 }
               ]
@@ -434,7 +434,7 @@
               "computerNamePrefix": "sap-han",
               "size": "Standard_DS2",
               "adminUsername": "testuser",
-              "adminPassword": "AweS0me@PW",
+              "adminPassword": "",
               "osType": "linux",
               "osAuthenticationType": "password",
               "virtualNetwork": {
