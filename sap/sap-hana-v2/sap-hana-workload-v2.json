@@ -13,7 +13,7 @@
               "computerNamePrefix": "sap-wdp",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "",
+              "adminPassword": "AweS0me@PW",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -94,7 +94,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": ""
+                    "Password": "AweS0me@PW"
                   }
                 }
               ]
@@ -110,7 +110,7 @@
               "computerNamePrefix": "sap-app",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "",
+              "adminPassword": "AweS0me@PW",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -150,7 +150,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": ""
+                    "Password": "AweS0me@PW"
                   }
                 }
               ]       
@@ -166,7 +166,7 @@
               "computerNamePrefix": "sap-scs",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "",
+              "adminPassword": "AweS0me@PW",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -351,24 +351,23 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": ""
+                    "Password": "AweS0me@PW"
                   }
                 },
                 {
                   "name": "PrepareWSFC",
                   "publisher": "Microsoft.Powershell",
                   "type": "DSC",
-                  "typeHandlerVersion": "2.16",
-                  "autoUpgradeMinorVersion": false,
+                  "typeHandlerVersion": "2.7",
+                  "autoUpgradeMinorVersion": true,
                   "settings": {
-                    "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/extensions/PrepareWSFC.ps1.zip",
-                    "configurationFunction": "PrepareWSFC.ps1\\PrepareWSFC",
-                    "properties": {}
+                    "configuration": {
+                      "url": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sap/sap-hana/extensions/PrepareWSFC.ps1.zip",
+                      "script": "PrepareWSFC.ps1",
+                      "function": "PrepareWSFC"
+                    }
                   },
                   "protectedSettings": {
-                    "items": {
-                      "adminPassword": ""
-                    }
                   }
                 }
               ]              
@@ -383,7 +382,7 @@
               "computerNamePrefix": "sap-wit",
               "size": "Standard_DS11_v2",
               "adminUsername": "testuser",
-              "adminPassword": "",
+              "adminPassword": "AweS0me@PW",
               "osType": "windows",
               "virtualNetwork": {
                 "name": "ra-sap-hana-vnet"
@@ -425,7 +424,7 @@
                     "Options": 3
                   },
                   "protectedSettings": {
-                    "Password": ""
+                    "Password": "AweS0me@PW"
                   }
                 }
               ]
@@ -435,7 +434,7 @@
               "computerNamePrefix": "sap-han",
               "size": "Standard_DS2",
               "adminUsername": "testuser",
-              "adminPassword": "",
+              "adminPassword": "AweS0me@PW",
               "osType": "linux",
               "osAuthenticationType": "password",
               "virtualNetwork": {
