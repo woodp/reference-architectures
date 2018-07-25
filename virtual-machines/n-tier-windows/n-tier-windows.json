@@ -421,29 +421,28 @@
                                     "typeHandlerVersion": "2.7",
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
-                                        "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/PrepareSQLServer.ps1.zip",
-                                        "configurationFunction": "PrepareSqlServer.ps1\\SqlServerPrepareDsc",
-                                        "properties": {
+                                        "configuration": {
+                                            "url": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/PrepareSQLServer.ps1.zip",
+                                            "script": "PrepareSqlServer.ps1",
+                                            "function": "SqlServerPrepareDsc"
+                                        }
+                                    },
+                                    "protectedSettings": {
+                                        "configurationArguments": {
                                             "domainName": "contoso.com",
                                             "Admincreds": {
                                                 "userName": "adminUser",
-                                                "password": "privateSettingsRef:adminPassword"
+                                                "password": "testPassw0rd!23"
                                             },
                                             "sqlServiceCreds": {
                                                 "userName": "sqlservicetestuser",
-                                                "password": "privateSettingsRef:sqlServerServiceAccountPassword"
+                                                "password": "AweS0me@SQLServicePW"
                                             },
                                             "ClusterName": "AOCluster",
                                             "ClusterOwnerNode": "sql1",
                                             "ClusterIP": "10.0.3.30",
                                             "witnessStorageBlobEndPoint": "https://[replace-with-storageaccountname].blob.core.windows.net",
                                             "witnessStorageAccountKey": "[replace-with-storagekey]"
-                                        }
-                                    },
-                                    "protectedSettings": {
-                                        "items": {
-                                            "adminPassword": "testPassw0rd!23",
-                                            "sqlServerServiceAccountPassword": "AweS0me@SQLServicePW"
                                         }
                                     }
                                 }
@@ -461,29 +460,28 @@
                                     "typeHandlerVersion": "2.7",
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
-                                        "modulesURL": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/PrepareSQLServer.ps1.zip",
-                                        "configurationFunction": "PrepareSqlServer-AGDB.ps1\\SQLServerDBDsc",
-                                        "properties": {
+                                        "configuration": {
+                                            "url": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/PrepareSQLServer.ps1.zip",
+                                            "script": "PrepareSqlServer-AGDB.ps1",
+                                            "function": "SQLServerDBDsc"
+                                        }
+                                    },
+                                    "protectedSettings": {
+                                        "configurationArguments": {
                                             "domainName": "contoso.com",
                                             "Admincreds": {
                                                 "userName": "adminUser",
-                                                "password": "privateSettingsRef:adminPassword"
+                                                "password": "testPassw0rd!23"
                                             },
                                             "sqlServiceCreds": {
                                                 "userName": "sqlservicetestuser",
-                                                "password": "privateSettingsRef:sqlServerServiceAccountPassword"
+                                                "password": "AweS0me@SQLServicePW"
                                             },
                                             "ClusterName": "AOCluster",
                                             "ClusterOwnerNode": "sql1",
                                             "ClusterIP": "10.0.3.30",
                                             "witnessStorageBlobEndPoint": "https://[replace-with-storageaccountname].blob.core.windows.net",
                                             "witnessStorageAccountKey": "[replace-with-storagekey]"
-                                        }
-                                    },
-                                    "protectedSettings": {
-                                        "items": {
-                                            "adminPassword": "testPassw0rd!23",
-                                            "sqlServerServiceAccountPassword": "AweS0me@SQLServicePW"
                                         }
                                     }
                                 }
@@ -536,13 +534,19 @@
                                 "name": "iis-config-ext",
                                 "publisher": "Microsoft.Powershell",
                                 "type": "DSC",
-                                "typeHandlerVersion": "2.1",
+                                "typeHandlerVersion": "2.7",
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
-                                    "ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/iisaspnet.ps1.zip",
-                                    "configurationFunction": "iisaspnet.ps1\\iisaspnet"
+                                    "configuration":{
+                                        "url": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/iisaspnet.ps1.zip",
+                                        "script": "iisaspnet.ps1",
+                                        "function": "iisaspnet"
+                                    }
                                 },
-                                "protectedSettings": {}
+                                "protectedSettings": {
+                                    "configurationArguments": {
+                                    }
+                                }
                             }
                         ],
                         "applicationGatewaySettings": {
@@ -661,13 +665,19 @@
                                 "name": "iis-config-ext",
                                 "publisher": "Microsoft.Powershell",
                                 "type": "DSC",
-                                "typeHandlerVersion": "2.1",
+                                "typeHandlerVersion": "2.7",
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
-                                    "ModulesUrl": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/iisaspnet.ps1.zip",
-                                    "configurationFunction": "iisaspnet.ps1\\iisaspnet"
+                                    "configuration": {
+                                        "url": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/windows/dsc/iisaspnet.ps1.zip",
+                                        "script": "iisaspnet.ps1",
+                                        "function": "iisaspnet"
+                                    }
                                 },
-                                "protectedSettings": {}
+                                "protectedSettings": {
+                                    "configurationArguments": {
+                                    }
+                                }
                             }
                         ],
                         "loadBalancerSettings": {
