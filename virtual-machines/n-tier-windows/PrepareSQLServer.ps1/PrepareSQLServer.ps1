@@ -206,8 +206,7 @@ configuration SQLServerPrepareDsc
             }
 
             TestScript = {
-                $cmd = "setspn -L " + $using:computerName
-                
+                return $false;
             }
 
             DependsOn = "[SqlServiceAccount]SetServiceAcccount_User"
