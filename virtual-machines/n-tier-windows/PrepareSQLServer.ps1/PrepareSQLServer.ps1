@@ -337,11 +337,11 @@ configuration SQLServerPrepareDsc
                 }
                 SetScript = {
                     $targetNodeName = $env:COMPUTERNAME
-                    Add-ClusterNode -Name $targetNodeName -Cluster $using:ClusterOwnerNode
+                    Add-ClusterNode -Name $targetNodeName -Cluster $using:ClusterName
                 }
                 TestScript = {
                     $targetNodeName = $env:COMPUTERNAME
-                    $(Get-ClusterNode -Cluster $using:ClusterOwnerNode).Name -contains $targetNodeName
+                    $(Get-ClusterNode -Cluster $using:ClusterName).Name -contains $targetNodeName
                 }
                 DependsOn = "[xWaitForCluster]WaitForCluster"
                 PsDscRunAsCredential = $DomainCreds
