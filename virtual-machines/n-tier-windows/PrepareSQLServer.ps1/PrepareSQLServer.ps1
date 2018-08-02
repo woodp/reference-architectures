@@ -387,7 +387,7 @@ configuration SQLServerPrepareDsc
                 InstanceName               = 'MSSQLSERVER'
                 PrimaryReplicaServerName   = $ClusterOwnerNode
                 PrimaryReplicaInstanceName = 'MSSQLSERVER'
-                PsDscRunAsCredential = $DomainCreds
+                PsDscRunAsCredential = $Admincreds
                 AvailabilityMode     = "SynchronousCommit"
                 FailoverMode         = "Automatic"
                 DependsOn            = "[SqlWaitForAG]WaitForAG"     
